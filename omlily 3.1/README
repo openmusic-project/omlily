@@ -1,0 +1,113 @@
+;; =============================================================================
+;;                                OMLILY
+;; =============================================================================
+;;
+;;                                  
+;;                          author : Karim Haddad   
+;;                     
+;;
+;;
+;;                           $Revision: 2.5 $
+;;                      $Date: 2015/22/16 13:08:12 $
+;;
+;;
+;This program is free software; you can redistribute it and/or 
+;modify it under the terms of the GNU General Public License
+;as published by the Free Software Foundation; either version 2
+;of the License, or (at your option) any later version.
+;
+;See file LICENSE for further informations on licensing terms.
+;
+;This program is distributed in the hope that it will be useful,
+;but WITHOUT ANY WARRANTY; without even the implied warranty of
+;MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;GNU General Public License for more details.
+;
+;You should have received a copy of the GNU General Public License
+;along with this program; if not, write to the Free Software
+;Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+;
+
+
+COMPATIBILITY
+
+* This Library is compatible with OpenMusic 6.x 
+* It runs on Linux and MacOsX plateforms
+
+
+INSTALLATION
+
+
+Copy the library folder in /OpenMusicX/libraries folder.
+
+
+LINUX 
+
+Once loaded, the library will automatically query the Lilypond binary in your path.
+It will also query for xpdf reader. You can change these options in OpenMusic preferences in the External tab.
+
+
+MACOSX
+
+
+In order to have the library automatically compile your *.ly file, you will need, beside the standard installation of Lilypond.app, configure the command-line link to the application as described here in the "Running on the command-line":
+
+http://www.lilypond.org/website/macos-x.html
+
+
+
+
+USAGE
+
+
+
+OM->LILY
+
+om->lily will export and compile VOICE, POLY, CHORD-SEQ and MULTI-SEQ objects into lilypond *.ly files.
+
+
+
+
+
+LILY->OM
+
+In order to import *.ly files into OpenMusic objects (POLY), you will have to :
+
+1) Uncomment the following 3 lines found in your *.ly generated file :
+
+   
+\score { 
+ { 
+
+% #(with-output-to-file "temp.lisp" --> uncomment
+% (lambda () #{ \displayMusic {     --> uncomment
+
+...
+
+% } #}))   --> uncomment
+
+} 
+ 
+
+2) After removing '%' you should recompile your file with lilypond. This will produce a "temp.lisp" file
+
+3) Connect lily->om to the first input of a POLY object (<self>) or CRTL+SHIFT+CLICK the output of lily->om in order to create a POLY instance.
+
+
+
+IMPORTANT:
+
+The Lilypond/Openmusic communication will work ONLY with om->lily generated files. 
+
+If not, please be really carefull when :
+
+1) in case of a single voice, or a single PianoStaff to group them between << and >> in the Score section
+
+2) For general cases of music, put bar checks after each measures.
+
+3) In case of PianoStaff cross-staff notation, this will not render as a cross-staff in OM. Hence all notes will stay on the same staff.
+
+PianoStaff is not yet integrated nor the CHORD-SEQ export.
+
+
+
