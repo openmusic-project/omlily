@@ -93,72 +93,66 @@
 
 (put-external-preferences 'xpdf (find-pref-module :externals))
 
-;=================================================
-;PREFERENCES PANEL MODULE
-;=================================================
+;========================================================================================================================
+;         PREFERENCES PANEL MODULE
+;=========================================================================================================================
 
-(defvar *composer-name* nil)
-(setf *composer-name* "El Guapo")
-(defvar *omlily-def-params* '(("G") 6000 gen))
+(defvar *lily-composer-name* nil)
+(setf *lily-composer-name* "El Guapo")
+
+(defvar *lily-title* nil)
+(setf *lily-title* "Title")
+
+(defvar *lily-clef* nil)
+(setf *lily-clef* (format nil "(\"~D\")" "G"))
+(defvar *split-note* 6000)
 
 (defvar *default-comp-mode* 0)
 
-(defun set-quantipar (module param value)
-  (let ((list (get-pref module :quantify)))
-    (setf (nth param list) value)
-    (set-pref module :quantify list)))
+(defvar *lily-paper-size* (merge-pathnames (string+ "lily-templates/sizes/" "a3landmarg" ".ly") (lib-resources-folder (find-library "omlily"))))
+(defvar *lily-layout-file* (merge-pathnames (string+ "lily-templates/layouts/" "template" ".ly") (lib-resources-folder (find-library "omlily"))))
 
-(defun get-quantipar (module param)
-  (nth param (get-pref module :quantify)))
+
+
 
 
 (defmethod get-def-vals ((iconID (eql :lilypond)))
    (list 
+    :lily-title "Title"
     :user-name "El Guapo" 
-    :quantify '(("G") 6000 gen)
+    :lily-clef (format nil "(\"~D\")" "G")
+    :split-note 6000
     :comp-mode 0
-    :out-files-dir (check-folder (merge-pathnames (make-pathname :directory '(:relative "out-files")) (mypathname *current-workspace*)))
-    :tmp-files-dir (check-folder (merge-pathnames (make-pathname :directory '(:relative "out-files")) (mypathname *current-workspace*)))
-    :in-files-dir (check-folder (merge-pathnames (make-pathname :directory '(:relative "in-files")) (mypathname *current-workspace*)))
+    :paper-size (merge-pathnames (string+ "lily-templates/sizes/" "a3landmarg" ".ly") (lib-resources-folder (find-library "omlily")))
+    :layout-file (merge-pathnames (string+ "lily-templates/layouts/" "template" ".ly") (lib-resources-folder (find-library "omlily")))
     ))
 
 
-; (get-pref (find-pref-module :lilypond) :quantify)
+; (get-pref (find-pref-module :lilypond) :lily-clef)
 
 (defmethod put-preferences ((iconID (eql :lilypond)))
 
   (let* ((modulepref (find-pref-module iconID))
          (quantparams (get-pref modulepref :quantify))
          )
-    
-    (setf *composer-name* (get-pref modulepref :user-name))
-    ;(set-pref modulepref :quantify quantparams)
-    (setf *omlily-def-params* (get-pref modulepref :quantify))
-
+    (setf *lily-title* (get-pref modulepref :lily-title))
+    (setf *lily-composer-name* (get-pref modulepref :user-name))
+    (setf *lily-clef* (get-pref modulepref :lily-clef))
+    (setf *split-note* (get-pref modulepref :split-note))
     (setf *default-comp-mode*     (get-pref modulepref :comp-mode))
-
-    (if (probe-file (get-pref modulepref :out-files-dir))
-        (setf *om-outfiles-folder* (get-pref modulepref :out-files-dir))
-      (push :out-files-dir *restore-defaults*))
-
-    (if (probe-file (get-pref modulepref :tmp-files-dir))
-        (setf *om-tmpfiles-folder* (get-pref modulepref :tmp-files-dir))
-      (push :tmp-files-dir *restore-defaults*))
-
-    (if (probe-file (get-pref modulepref :in-files-dir))
-        (setf *om-infiles-folder* (get-pref modulepref :in-files-dir))
-      (push :tmp-files-dir *restore-defaults*))
-     
+    (setf *lily-paper-size* (get-pref modulepref :paper-size))
+    (setf *lily-layout-file* (get-pref modulepref :layout-file))
     ))
 
 (defmethod save-pref-module ((iconID (eql :lilypond)) item)
    (list iconID `(list 
-                       :user-name ,*composer-name* 
-                       
-                       :out-files-dir ,(om-save-pathname *om-outfiles-folder*)
-                       :tmp-files-dir ,(om-save-pathname *om-tmpfiles-folder*)
-                       :in-files-dir ,(om-save-pathname *om-infiles-folder*)
-                       ) *om-version*))
+                  :lily-title ,*lily-title*
+                  :user-name ,*lily-composer-name* 
+                  :lily-clef ,*lily-clef*
+                  :split-note ,*split-note*
+                  :paper-size ,(om-save-pathname *lily-paper-size*)
+                  :layout-file ,(om-save-pathname *lily-layout-file*)
+                  ) *om-version*))
 
 
 
@@ -169,24 +163,35 @@
                                  :size (get-pref-scroll-size)
                                  :position (om-make-point 0 0)
                                  :font *controls-font* 
-                                 ;:scrollbars :v 
-                                 ;:retain-scrollbars t
+                                ;:scrollbars :v 
+                                ;:retain-scrollbars t
                                  :bg-color *om-light-gray-color*
                                  ))
-        (l1 20)
+        (l1 50)
 	(l2 (round (om-point-h (get-pref-scroll-size)) 2))
 	(l3 (- (om-point-h (get-pref-scroll-size)) 60))
         (i 40)
         (posy 0)
-	(dy 30)
-        outtxt tmptxt intxt)
+	(dy 40)
+        outtxt tmptxt)
     
     (om-add-subviews thescroll 
                      ;(om-make-dialog-item 'om-static-text (om-make-point l1 (incf posy 5)) (om-make-point 200 30) "General"
                      ;                      :font *om-default-font4b*)
                      
 
-                     (om-make-dialog-item 'om-static-text (om-make-point l1 (incf posy dy)) (om-make-point 90 24) "User Name"
+                     (om-make-dialog-item 'om-static-text (om-make-point l1 (incf posy dy)) (om-make-point 90 24) "Title"
+                                          :font *controls-font*) 
+
+                     (om-make-dialog-item 'om-editable-text (om-make-point (+ l1 100) posy)
+                                          (om-make-point 200 15)
+                                          (get-pref modulepref :lily-title)
+                                          :after-action (om-dialog-item-act item 
+                                                          (set-pref modulepref :lily-title (om-dialog-item-text item)))
+                                          :font *controls-font*
+                                          )
+
+                     (om-make-dialog-item 'om-static-text (om-make-point l1 (incf posy dy)) (om-make-point 90 24) "Composer"
                                           :font *controls-font*) 
 
                      (om-make-dialog-item 'om-editable-text (om-make-point (+ l1 100) posy)
@@ -196,61 +201,37 @@
                                                           (set-pref modulepref :user-name (om-dialog-item-text item)))
                                           :font *controls-font*
                                           )
-                     (om-make-dialog-item 'om-static-text  (om-make-point 50 (incf i 40)) (om-make-point 120 20) "Options:"
+                     
+                     (om-make-dialog-item 'om-static-text  (om-make-point 50 (incf i 80)) (om-make-point 120 20) "Options:"
                                           :font *controls-font*)
                      
-                     (om-make-dialog-item 'om-static-text  (om-make-point 20 (incf i 20)) (om-make-point 350 20) " "
-                                          :font *om-default-font1*)
-                     
-                     (om-make-dialog-item 'om-static-text  (om-make-point 50 (incf i 30)) (om-make-point 120 20) "Clef(s)"
+                  
+                     (om-make-dialog-item 'om-static-text  (om-make-point 50 (incf i 40)) (om-make-point 120 20) "Clefs"
                                           :font *controls-font*)
-                     (om-make-dialog-item 'om-editable-text (om-make-point 170 i)  (om-make-point 37 13)
-                                          (format nil "~D" (get-quantipar modulepref 0)) 
+                     (om-make-dialog-item 'om-editable-text (om-make-point 170 i)  (om-make-point 200 15) ;(om-make-point 37 13)
+                                          (format nil "~D" (get-pref modulepref :lily-clef))
                                           :modify-action (om-dialog-item-act item
                                                            (let ((text (om-dialog-item-text item))
                                                                  number)
                                                              (unless (string= "" text)
                                                                (setf number (ignore-errors (read-from-string text)))
                                                                (when number 
-                                                                 (set-quantipar modulepref 0 number)
+                                                                 (set-pref modulepref :lily-clef (om-dialog-item-text item))
                                                                  ))))
                                           :font *om-default-font2*)
 
-                     
-                     
-                     (om-make-dialog-item 'om-static-text  (om-make-point 50 (incf i 30)) (om-make-point 120 20) "Clef Change"
+                     (om-make-dialog-item 'om-static-text  (om-make-point 50 (incf i 40)) (om-make-point 120 20) "Clef Change"
                                           :font *controls-font*)
                      (om-make-dialog-item 'om-editable-text (om-make-point 170 i)  (om-make-point 37 13)
-                                          (format nil "~D" (get-quantipar modulepref 1)) 
-                                          :modify-action (om-dialog-item-act item
-                                                           (let ((text (om-dialog-item-text item))
-                                                                 number)
-                                                             (unless (string= "" text)
-                                                               (setf number (ignore-errors (read-from-string text)))
-                                                               (if number
-                                                                   (set-quantipar modulepref 1 number)
-                                                                 ))))
+                                          (format nil "~D" (get-pref modulepref :split-note))
+                                          :modify-action (om-dialog-item-act item (set-pref modulepref :split-note (om-dialog-item-text item)))
                                           :font *om-default-font2*)
-                     #|    
-                     (om-make-dialog-item 'om-static-text  (om-make-point 50 (incf i 30)) (om-make-point 120 20) "Clef Change"
-                                          :font *controls-font*)
-                     (om-make-dialog-item 'om-editable-text (om-make-point 170 i) (om-make-point 37 13)
-                                          (format nil "~D" (get-quantipar modulepref 2)) 
-                                          :modify-action (om-dialog-item-act item
-                                                           (let ((text (om-dialog-item-text item))
-                                                                 number)
-                                                             (unless (string= "" text)
-                                                               (setf number (ignore-errors (read-from-string text)))
-                                                               (if number
-                                                                   (set-quantipar modulepref 2 number)
-                                                                 ))))
-                                          :font *om-default-font2*)
-                     |#
+
                      
-                     (om-make-dialog-item 'om-static-text (om-make-point 50 (incf i 30)) (om-make-point 120 20) "Compilation Mode"
+                     (om-make-dialog-item 'om-static-text (om-make-point 50 (incf i 40)) (om-make-point 120 20) "Compilation Mode"
                                           :font *controls-font*)
 
-                     (om-make-dialog-item 'om-pop-up-dialog-item (om-make-point 160 i) (om-make-point 90 10) ""
+                     (om-make-dialog-item 'om-pop-up-dialog-item (om-make-point 165 (- i 5)) (om-make-point 90 10) ""
                                           :range '("generic" "polymetric")
                                           :value (if (= 0 *default-comp-mode*) "generic" "polymetric")
 					  :di-action (om-dialog-item-act item 
@@ -258,44 +239,20 @@
                                                          (set-pref modulepref :comp-mode
                                                                    (if (string-equal choice "generic") 0 1))))
 					  :font *controls-font*)
-       
-
-
-
                      
-                     #|
-                     (om-make-dialog-item 'om-static-text  (om-make-point 50 (incf i 30)) (om-make-point 120 20) "Max. Division"
-                                          :font *controls-font*)
-                     (om-make-dialog-item 'om-editable-text (om-make-point 150 i) (om-make-point 37 13)
-                                          (format nil "~D" (get-quantipar modulepref 2)) 
-                                          :modify-action (om-dialog-item-act item
-                                                           (let ((text (om-dialog-item-text item))
-                                                                 number)
-                                                             (unless (string= "" text)
-                                                               (setf number (ignore-errors (read-from-string text)))
-                                                               (if number
-                                                                   (set-quantipar modulepref 2 number)
-                                                                 ))))
-                                          :font *om-default-font2*)
-                     |#
                      )
 
     (setf posy 0)
     
     (om-add-subviews thescroll
-                     ;(om-make-dialog-item 'om-static-text (om-make-point l2 (incf posy 50)) (om-make-point 200 30) "Init folder"
-                     ;                     :font *om-default-font2b*)
-                     ;(om-make-dialog-item 'om-static-text  (om-make-point l2 (incf posy 20)) (om-make-point 360 40) 
-                     ;                     "Lisp files in this folder will be automatically loaded at startup"
-                     ;                     :font *om-default-font1*)
-
-                     (om-make-dialog-item 'om-static-text (om-make-point l2 (incf posy 50)) (om-make-point 200 30) "Default Folders"
+                    
+                     (om-make-dialog-item 'om-static-text (om-make-point l2 (incf posy 50)) (om-make-point 200 30) "Template Files"
                                           :font *om-default-font2b*)
 
-                     (om-make-dialog-item 'om-static-text  (om-make-point l2 (incf posy dy)) (om-make-point 80 22) "Output Files:"
+                     (om-make-dialog-item 'om-static-text  (om-make-point l2 (incf posy dy)) (om-make-point 80 22) "Paper size:"
                                           :font *controls-font*)
                      (setf outtxt (om-make-dialog-item 'om-static-text  (om-make-point l2 (incf posy 25)) (om-make-point 320 45)
-                                                       (om-namestring (get-pref modulepref :out-files-dir))
+                                                       (om-namestring (get-pref modulepref :paper-size))
                                           :font *om-default-font1*))
                      
                      (om-make-view 'om-icon-button 
@@ -303,32 +260,15 @@
                                                       :position (om-make-point l3 (- posy 5)) :size (om-make-point 26 25) 
                                                       :action (om-dialog-item-act item
                                                                          (declare (ignore item))
-                                                                         (let ((newfolder (om-choose-directory-dialog :directory
-                                                                                                                      (get-pref modulepref :out-files-dir))))
-                                                                           (when newfolder
-                                                                             (om-set-dialog-item-text outtxt (om-namestring newfolder))
-                                                                             (set-pref modulepref :out-files-dir newfolder)))))
+                                                                         (let ((file (om-choose-file-dialog)))
+                                                                           (when file
+                                                                             (om-set-dialog-item-text outtxt (om-namestring file))
+                                                                             (set-pref modulepref :paper-size file)))))
                      
-                      
-                     (om-make-dialog-item 'om-static-text  (om-make-point l2 (incf posy 40)) (om-make-point 80 22) "Input Files:" :font *controls-font*)
-                     (setf intxt (om-make-dialog-item 'om-static-text  (om-make-point l2 (incf posy 25)) (om-make-point 320 45)
-                                                      (om-namestring (get-pref modulepref :in-files-dir))
-                                                      :font *om-default-font1*))
-                     
-                     (om-make-view 'om-icon-button 
-                                   :icon1 "folder" :icon2 "folder-pushed"
-                                   :position (om-make-point l3 (- posy 5)) :size (om-make-point 26 25) 
-                                   :action (om-dialog-item-act item
-                                             (declare (ignore item))
-                                             (let ((newfolder (om-choose-directory-dialog :directory (get-pref modulepref :in-files-dir))))
-                                               (when newfolder
-                                                 (om-set-dialog-item-text intxt (om-namestring newfolder))
-                                                 (set-pref modulepref :in-files-dir newfolder)))))
-                      
 
-                     (om-make-dialog-item 'om-static-text  (om-make-point l2 (incf posy 40)) (om-make-point 80 22) "Temp Files:" :font *controls-font*)
+                     (om-make-dialog-item 'om-static-text  (om-make-point l2 (incf posy 40)) (om-make-point 80 22) "Layout:" :font *controls-font*)
                      (setf tmptxt (om-make-dialog-item 'om-static-text  (om-make-point l2 (incf posy 25)) (om-make-point 320 45)
-                                                       (om-namestring (get-pref modulepref :tmp-files-dir))
+                                                       (om-namestring (get-pref modulepref :layout-file))
                                           :font *om-default-font1*))
                      
                      (om-make-view 'om-icon-button 
@@ -336,14 +276,14 @@
                                    :position (om-make-point l3 (- posy 5)) :size (om-make-point 26 25) 
                                    :action (om-dialog-item-act item
                                                        (declare (ignore item))
-                                                       (let ((newfolder (om-choose-file-dialog)))
-                                                              ;(om-choose-directory-dialog :directory (get-pref modulepref :tmp-files-dir))))
-                                                         (when newfolder
-                                                           (om-set-dialog-item-text tmptxt (om-namestring newfolder))
-                                                          (set-pref modulepref :tmp-files-dir newfolder)))))
+                                                       (let ((file (om-choose-file-dialog)))
+                                                         (when file
+                                                           (om-set-dialog-item-text tmptxt (om-namestring file))
+                                                          (set-pref modulepref :layout-file file)))))
                      )
           
     thescroll))
+
 
 
 

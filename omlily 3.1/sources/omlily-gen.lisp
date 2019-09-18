@@ -914,6 +914,12 @@ rep))
          while (not (file-eof-p in))
          do (let ((line (read-line in)))
               (write-line  line out))))
+
+      (format out "\\header {~%")
+      (format out "breakbefore =##t~%")
+      (format out "title = \\markup {\"~D\"}~%"  *lily-title*)
+      (format out "composer = \\markup {\"~D\"}~%"  *lily-composer-name*)
+      (format out"}~%~%")
       ;;;;The music
    
       ;;;;;

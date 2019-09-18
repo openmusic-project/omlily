@@ -39,12 +39,6 @@
 }
 
 
-\header {
-  breakbefore = ##t
-  title =  \markup \center-column {"Title" }
-
-  }
-
 
 
 
