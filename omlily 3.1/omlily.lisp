@@ -65,11 +65,11 @@
 ;--------------------------------------------------
 (defvar *subpackages-omlily-var* nil)
 (setf *subpackages-omlily-var*
-      '(("music editing" nil nil (
-                                  om->lily
-                                  lily->om
-                                  lily->om-rebar
-                                  ) nil)))
+      '((nil  nil nil (
+                       om->lily
+                       lily->om
+                       lily->om-rebar
+                       ) nil)))
 
 ;--------------------------------------------------
 ;filling packages
