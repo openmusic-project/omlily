@@ -69,6 +69,11 @@ nil)
       collect (list (list i j) d)))
 
 
+|#
+
+
+
+;;compatible dyn in lily mapping.
 
 (defun get-dyn-from-om (elmt)
   (let (res)
@@ -78,8 +83,25 @@ nil)
             (push i res)))
     (second (car res))))
 
-;(get-dyn-from-om 22)
-|#
+;(get-dyn-from-om 127)
+
+
+
+(setf *custom-dyn* 
+      (list (list (list 0 31)  "\\ppppp")
+            (list (list 32 42)  "\\pppp")
+            (list (list 43 52)  "\\ppp")
+            (list (list 53 61)  "\\pp")
+            (list (list 62 69)  "\\p")
+            (list (list 70 76)  "\\mp")
+            (list (list 77 85)  "\\mf")
+            (list (list 86 94)  "\\f")
+            (list (list 95 101)  "\\ff")
+            (list (list 102 107)  "\\fff")
+            (list (list 108 116)  "\\ffff")
+            (list (list 117 120)  "\\fffff")
+            (list (list 121 127)  "\\sf")))
+
 
 
 (defmethod get-chan-of-voice ((voice om::voice))
@@ -156,6 +178,7 @@ rep))
   ;(setf *chords-and-cont* (collect-chords  self))
   ;(setf *treeratios* (om-abs (treeratio (om-round (tree self)))))
   ;(setf *switch* nil)
+  (setf *tempdyn* nil)
   (setf *mesure-num* 0)
   (setf *mesure-qtempo* (qtempo self))
   (let ((rep (list (format nil "~s=" (cassq *voice-num* *voice-rank* )) "{" 
@@ -455,10 +478,12 @@ rep))
          (t 
           ))))
  
-    (if (not (equal dyn *tempdyn*))
-        (progn
-          (setf str (string+ str (format nil " ~d" dyn)))
-          (setf *tempdyn* dyn)))
+    (if *lily-dyn-on*
+        (if (not (equal dyn *tempdyn*))
+            (progn
+              (setf str (string+ str (format nil " ~d" dyn)))
+              (setf *tempdyn* dyn)))
+      )
 
     ;;;extras
     (if velex 
@@ -598,10 +623,12 @@ rep))
       (t 
        ))))
  
- (if (not (equal dyn *tempdyn*))
-     (progn
-       (setf str (string+ str (format nil " ~d" dyn)))
-       (setf *tempdyn* dyn)))
+ (if *lily-dyn-on*
+     (if (not (equal dyn *tempdyn*))
+         (progn
+           (setf str (string+ str (format nil " ~d" dyn)))
+           (setf *tempdyn* dyn)))
+   )
 
     ;;;extras
     (if velex 
@@ -775,7 +802,6 @@ rep))
                        (3 (("template" "template1")
                            )))
             :doc "Exports voice, poly, with polytempi into lilypond format. [Experimental]"
-            (setf *tempdyn* nil)
             (let* ((ressource-folder (lib-resources-folder (find-library "omlily")))
                    (paperfile (merge-pathnames (string+ "lily-templates/sizes/" paper ".ly") ressource-folder))
                    (layoutfile (merge-pathnames (string+ "lily-templates/layouts/" layout ".ly") ressource-folder))
@@ -790,7 +816,6 @@ rep))
                                (paper "a3landmarg")
                                (layout "template1")
                                (path nil))
-            (setf *tempdyn* nil)
             (let* ((ressource-folder (lib-resources-folder (find-library "omlily")))
                    (paperfile (merge-pathnames (string+ "lily-templates/sizes/" paper ".ly") ressource-folder))
                    (layoutfile (merge-pathnames (string+ "lily-templates/layouts/" layout ".ly") ressource-folder))
