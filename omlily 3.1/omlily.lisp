@@ -44,10 +44,10 @@
                                "lilypond-preferences"
                                "chord-seq-to-pdf"
                                "omlily-gen"
-                               "omlily-gen-extra" ;;;a voir...
+                              ; "omlily-gen-extra" ;;;a voir...
                                "lilypond-to-om"
-                               "omlily-special"
-                               "omlily-special-tempo-dyn1"
+                              ; "omlily-special"
+                              ; "omlily-special-tempo-dyn1"
                                "omlily-special-tempo-dyn_extra"
                                "lily-rebar"
                                ))
