@@ -570,6 +570,7 @@ rep))
 
 (defmethod cons-lil-expr-extr ((self om::voice) clef switch)
   (setf *mesure-num* 0)
+  (setf *tempdyn* nil)
   (setf *clef-switch* 0);new
   (setf *clef-switch-b* 0);new
   (let ((rep (list (format nil "~s=" (cassq *voice-num* *voice-rank* )) "{" 
@@ -722,7 +723,7 @@ rep))
   (loop for i in liste
         collect (if (text-extra-p i) (thetext i)))))
 
-
+;not needed anymore ?
 (defun get-extra-vel (liste)
   (remove 'nil 
   (loop for i in liste
@@ -741,12 +742,13 @@ rep))
   (let* ((notes (inside self))
         (extra (car (mapcar #'extra-obj-list notes)))
         (text (car (get-extra-text extra)))
-        (vel (car (get-extra-vel extra)))
+        (velex (if (vel-extra-p (car extra))
+                    (thechar (car extra))))
         (durtot (if (listp dur) (car dur) dur))
         (inside (om::inside self))
+        (vel (car (om::lvel self)))
+        (dyn (get-dyn-from-om vel))
         (str "")) 
-
-   ; (print (list "eeee" extra vel)) 
     
     (if (= (length inside) 1)
       (setf str (cons-lily-note (car inside)))
@@ -754,8 +756,6 @@ rep))
         (loop for note in inside do (setf notes (string+ notes " " (cons-lily-note note)))) 
         (setf str (string+ "<" notes ">")))
       )
-
-
       
 ;;;trouver un truc pour les longues notes !!!! (cf. om-lily-spec)      
 
@@ -772,10 +772,6 @@ rep))
 
 
 
-
-
-
-
     (when (or (and (not (om::cont-chord-p self))
                    (om::cont-chord-p (om::next-container self '(om::chord))))
               (and (om::cont-chord-p self)
@@ -783,10 +779,15 @@ rep))
               )
       (setf str (string+ str "~"))
       )
-
-
-    (if vel 
-        (setf str (string+ str  (massq vel *vel-for-lil*)))
+    (if *lily-dyn-on*
+    (if (not (equal dyn *tempdyn*))
+        (progn
+          (setf str (string+ str (format nil " ~d" dyn)))
+          (setf *tempdyn* dyn)))
+      )
+      ;;;extras  
+    (if velex 
+        (setf str (string+ str  (massq velex *vel-for-lil*)))
       )
 
     (if text     
@@ -797,6 +798,7 @@ rep))
     ))
 
 
+
 (defmethod cons-lil-expr-extr-switch ((self om::chord) dur switch)
   (let* ((clef *clef-switch*)
          (reg (if (< (car (lmidic self)) switch) 
@@ -805,12 +807,13 @@ rep))
          (notes (inside self))
          (extra (car (mapcar #'extra-obj-list notes)))
          (text (car (get-extra-text extra)))
-         (vel (car (get-extra-vel extra)))
+         (velex (if (vel-extra-p (car extra))
+                    (thechar (car extra))))
          (durtot (if (listp dur) (car dur) dur))
          (inside (om::inside self))
+         (vel (car (om::lvel self)))
+         (dyn (get-dyn-from-om vel))
          (str "")) 
-
-   ; (print (list "eeee" extra vel)) 
 
     (if (= (length inside) 1)
         
@@ -850,10 +853,17 @@ rep))
               )
       (setf str (string+ str "~"))
       )
+    
+    (if *lily-dyn-on*
+     (if (not (equal dyn *tempdyn*))
+     (progn
+       (setf str (string+ str (format nil " ~d" dyn)))
+       (setf *tempdyn* dyn)))
+      )
 
-
-    (if vel 
-        (setf str (string+ str  (massq vel *vel-for-lil*)))
+        ;;;extras
+    (if velex 
+        (setf str (string+ str  (massq velex *vel-for-lil*)))
       )
 
     (if text     
@@ -862,7 +872,6 @@ rep))
     
     (list str)
     ))
-
 
 
                       
