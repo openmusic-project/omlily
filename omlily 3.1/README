@@ -50,7 +50,7 @@ It will also query for xpdf reader. You can change these options in OpenMusic pr
 MACOSX
 
 
-In order to have the library automatically compile your *.ly file, you will need, beside the standard installation of Lilypond.app, configure the command-line link to the application as described here in the "Running on the command-line":
+In order to have the library automatically compile your *.ly file, you will need, beside the standard installation of Lilypond.app, to configure the command-line link to the application as described here in the "Running on the command-line":
 
 http://www.lilypond.org/website/macos-x.html
 

@@ -9,8 +9,9 @@ omlily version 3 has a lot more features than the its old version:
 	- "generic"    : for common scores
     - "polymetric" : support for polymetrics and polytempi
 
-- Swithching clefs for one staves
+- Automatic swithching clefs for one staves music.
 
-- Dynamics exportation for 
+- Dynamics and Extra exportation to lilypond. 
 
 - Added preferences panel
+
