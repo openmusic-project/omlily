@@ -113,7 +113,8 @@
 (defvar *lily-layout-file* (merge-pathnames (string+ "lily-templates/layouts/" "template" ".ly") (lib-resources-folder (find-library "omlily"))))
 
 
-
+(defvar *lily-dyn-on* nil)
+(setf *lily-dyn-on* t)
 
 
 (defmethod get-def-vals ((iconID (eql :lilypond)))
@@ -123,6 +124,7 @@
     :lily-clef (format nil "(\"~D\")" "G")
     :split-note 6000
     :comp-mode 0
+    :lily-dyn-on t
     :paper-size (merge-pathnames (string+ "lily-templates/sizes/" "a3landmarg" ".ly") (lib-resources-folder (find-library "omlily")))
     :layout-file (merge-pathnames (string+ "lily-templates/layouts/" "template" ".ly") (lib-resources-folder (find-library "omlily")))
     ))
@@ -140,6 +142,7 @@
     (setf *lily-clef* (get-pref modulepref :lily-clef))
     (setf *split-note* (get-pref modulepref :split-note))
     (setf *default-comp-mode*     (get-pref modulepref :comp-mode))
+    (setf *lily-dyn-on* (get-pref modulepref :lily-dyn-on))
     (setf *lily-paper-size* (get-pref modulepref :paper-size))
     (setf *lily-layout-file* (get-pref modulepref :layout-file))
     ))
@@ -150,6 +153,8 @@
                   :user-name ,*lily-composer-name* 
                   :lily-clef ,*lily-clef*
                   :split-note ,*split-note*
+                  :comp-mode ,*default-comp-mode*
+                  :lily-dyn-on ,*lily-dyn-on*
                   :paper-size ,(om-save-pathname *lily-paper-size*)
                   :layout-file ,(om-save-pathname *lily-layout-file*)
                   ) *om-version*))
@@ -239,6 +244,15 @@
                                                          (set-pref modulepref :comp-mode
                                                                    (if (string-equal choice "generic") 0 1))))
 					  :font *controls-font*)
+                     
+                      (om-make-dialog-item 'om-static-text (om-make-point 50 (incf i 40)) (om-make-point 120 20) "Export Dynamics"
+                                          :font *controls-font*)
+
+                     (om-make-dialog-item 'om-check-box (om-make-point 165 i) (om-make-point 30 10) ""
+                                          :font *controls-font*
+                                          :checked-p (get-pref modulepref :lily-dyn-on)
+                                          :di-action (om-dialog-item-act item 
+                                                       (set-pref modulepref :lily-dyn-on (om-checked-p item))))
                      
                      )
 
