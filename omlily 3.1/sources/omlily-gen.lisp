@@ -1128,19 +1128,13 @@ rep))
             (let* ((ressource-folder (lib-resources-folder (find-library "omlily")))
                    (paperfile (merge-pathnames (string+ "lily-templates/sizes/" paper ".ly") ressource-folder))
                    (pathname (or path (om-choose-new-file-dialog)))
-                   (binary? (p-of-2 (flat (get-measure self))))
                    (layoutfile
-                    (if ;(and binary? (same-poly-mes self))
-                        (equal mode 'gen)
+                    (if (equal mode 'gen)
                         (merge-pathnames (string+ "lily-templates/layouts/" "template" ".ly") ressource-folder)
                       (merge-pathnames (string+ "lily-templates/layouts/" "template1" ".ly") ressource-folder))
                     )
                     
                    (lilyfile 
-                   ; (if (and binary? (same-poly-mes self));;;ajout de same-poly-mes ...
-                   ;     (write-lil-file (cons-lil-expr-extr self clef switch) pathname paperfile layoutfile)
-                   ;   (write-lil-file (cons-lily-expr self clef nil switch) pathname paperfile layoutfile)
-                   ;   )
                     (if (equal mode 'gen)
                         (write-lil-file (cons-lil-expr-extr self clef switch) pathname paperfile layoutfile)
                       (write-lil-file (cons-lily-tempo-ex-expr self clef nil switch) pathname paperfile layoutfile)
@@ -1160,7 +1154,6 @@ rep))
             (let* ((ressource-folder (lib-resources-folder (find-library "omlily")))
                    (paperfile (merge-pathnames (string+ "lily-templates/sizes/" paper ".ly") ressource-folder))
                    (pathname (or path (om-choose-new-file-dialog)))
-                   (binary? (p-of-2 (get-measure self)))
                    (layoutfile
                     (if (equal mode 'gen)
                         (merge-pathnames (string+ "lily-templates/layouts/" "template" ".ly") ressource-folder)
