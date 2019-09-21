@@ -918,6 +918,7 @@ rep))
       (format out "\\version \"~A\"~%~%" version )
         (format out "\\version \"2.18\"~%~%"))
       ;;;;page sizes
+      (format out "#(set-default-paper-size \"~D~D\")~%" "a3" "portrait")
       (WITH-OPEN-FILE (in paper :direction :input)
         (loop 
          while (not (file-eof-p in))
@@ -935,7 +936,9 @@ rep))
       (loop for elt in list do
             (format out "~A~%" elt))
 
-      
+      (if *midioutput*
+            (format out "\\midi {}")
+        )
          
       ;;;;layout templates
       (WITH-OPEN-FILE (in layout :direction :input)
@@ -1077,9 +1080,9 @@ rep))
                            ))
                        )
             :doc "Exports voice, poly,chordseq to lilypond format"
-            (setf paper "a3landmarg")
+            ;(setf paper "paper")
             (let* ((ressource-folder (lib-resources-folder (find-library "omlily")))
-                   (paperfile *lily-paper-size*) 
+                   (paperfile *lily-paper-other*) 
                    (pathname (or path (om-choose-new-file-dialog)))
                    (layoutfile
                     (if (or (equal mode 'gen) (= *default-comp-mode* 0))
@@ -1089,8 +1092,8 @@ rep))
                     
                    (lilyfile 
                     (if (or (equal mode 'gen) (= *default-comp-mode* 0))
-                        (write-lil-file (cons-lil-expr-extr self (or clef (read-from-string *lily-clef*)) (or switch *split-note*)) pathname paperfile layoutfile)
-                      (write-lil-file (cons-lily-tempo-ex-expr self (or clef (read-from-string *lily-clef*)) nil (or switch *split-note*)) pathname paperfile layoutfile)
+                        (write-lil-file (cons-lil-expr-extr self (or clef (read-from-string *lily-clef*)) (or switch (read-from-string *split-note*))) pathname paperfile layoutfile)
+                      (write-lil-file (cons-lily-tempo-ex-expr self (or clef (read-from-string *lily-clef*)) nil (or switch (read-from-string *split-note*))) pathname paperfile layoutfile)
                       )))
               (run-lilypond lilyfile)))
 
@@ -1102,7 +1105,7 @@ rep))
                         (switch nil)
                         (path nil))
             (let* ((ressource-folder (lib-resources-folder (find-library "omlily")))
-                   (paperfile *lily-paper-size*) 
+                   (paperfile *lily-paper-other*) 
                    (pathname (or path (om-choose-new-file-dialog)))
                    (layoutfile
                     (if (or (equal mode 'gen) (= *default-comp-mode* 0))
@@ -1115,13 +1118,13 @@ rep))
                                           (make-instance 'poly
                                                          :voices self) 
                                           (or clef (read-from-string *lily-clef*)) 
-                                          (or switch *split-note*)) pathname paperfile layoutfile)
+                                          (or switch (read-from-string *split-note*))) pathname paperfile layoutfile)
                       (write-lil-file 
                               (cons-lily-tempo-ex-expr (make-instance 'poly
                                                                   :voices self) 
                                                        (or clef (read-from-string *lily-clef*)) 
                                                        nil 
-                                                       (or switch *split-note*)) pathname paperfile layoutfile)
+                                                       (or switch (read-from-string *split-note*))) pathname paperfile layoutfile)
                       )))
                    
               (run-lilypond lilyfile)))
