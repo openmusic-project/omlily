@@ -370,12 +370,10 @@ to c4 and returns a multiseq"
 
 
 (defmethod! om->lily ((self chord-seq) 
-                             (clef list)
-                             (switch number)
-                             (mode symbol)
-                             &optional
-                             (paper "a3landmarg")
-                             (layout "template")
+	                     &optional	
+                             (mode nil)
+                             (clef nil)
+                             (switch nil)
                              (path nil))
             (let* ((ressource-folder (lib-resources-folder (find-library "omlily")))
                    (paperfile (merge-pathnames (string+ "lily-templates/sizes/" paper ".ly") ressource-folder))
@@ -387,13 +385,11 @@ to c4 and returns a multiseq"
 
 
 (defmethod! om->lily ((self multi-seq) 
-                             (clef list)
-                             (switch number)
-                             (mode symbol)
-                             &optional
-                             (paper "a3landmarg")
-                             (layout "template")
-                             (path nil))
+	               &optional
+                       (mode nil)
+                       (clef nil)
+                       (switch nil)
+                       (path nil))
             (let* ((ressource-folder (lib-resources-folder (find-library "omlily")))
                    (paperfile (merge-pathnames (string+ "lily-templates/sizes/" paper ".ly") ressource-folder))
                    (layoutfile (merge-pathnames (string+ "lily-templates/layouts/" layout ".ly") ressource-folder))
@@ -403,3 +399,5 @@ to c4 and returns a multiseq"
                               pathname))
                    )
               (run-lilypond lilyfile)))
+
+
