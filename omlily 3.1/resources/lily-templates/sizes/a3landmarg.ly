@@ -1,4 +1,3 @@
-#(set-default-paper-size "a3landscape")
 #(set-global-staff-size 18)
 
 
@@ -23,19 +22,7 @@
 
   }
     
-    #(define fonts
-      (set-global-fonts
-       #:music "emmentaler"            ; default
-       #:brace "emmentaler"            ; default
-       #:roman "Linotype Trajanus"
-       #:sans "Nimbus Sans,Nimbus Sans L"
-       #:typewriter "Luxi Mono"
-       #:factor (/ staff-height pt 20) ; unnecessary if the staff size is default
-     ))
-
-    
-
-
+   
 }
 
 
