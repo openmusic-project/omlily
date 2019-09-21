@@ -106,7 +106,7 @@
 
 (defvar *lily-clef* nil)
 (setf *lily-clef* (format nil "(\"~D\")" "G"))
-(defvar *split-note* 6000)
+(defvar *split-note* "6000")
 
 (defvar *default-comp-mode* 0)
 
@@ -131,7 +131,7 @@
     :lily-title "Title"
     :user-name "El Guapo" 
     :lily-clef (format nil "(\"~D\")" "G")
-    :split-note 6000
+    :split-note "6000"
     :comp-mode 0
     :lily-dyn-on t
     :midioutput nil
