@@ -97,6 +97,7 @@
 ;         PREFERENCES PANEL MODULE
 ;=========================================================================================================================
 
+
 (defvar *lily-composer-name* nil)
 (setf *lily-composer-name* "El Guapo")
 
@@ -109,12 +110,20 @@
 
 (defvar *default-comp-mode* 0)
 
-(defvar *lily-paper-size* (merge-pathnames (string+ "lily-templates/sizes/" "a3landmarg" ".ly") (lib-resources-folder (find-library "omlily"))))
+(defvar *lily-paper-other* (merge-pathnames (string+ "lily-templates/sizes/" "paper" ".ly") (lib-resources-folder (find-library "omlily"))))
 (defvar *lily-layout-file* (merge-pathnames (string+ "lily-templates/layouts/" "template" ".ly") (lib-resources-folder (find-library "omlily"))))
-
 
 (defvar *lily-dyn-on* nil)
 (setf *lily-dyn-on* t)
+
+(defvar *lily-paper-size* nil)
+(setf *lily-paper-size* "a4")
+
+(defvar *lily-paper-orientation* nil)
+(setf *lily-paper-orientation* "landscape")
+
+(defvar *midioutput* nil)
+
 
 
 (defmethod get-def-vals ((iconID (eql :lilypond)))
@@ -125,7 +134,10 @@
     :split-note 6000
     :comp-mode 0
     :lily-dyn-on t
-    :paper-size (merge-pathnames (string+ "lily-templates/sizes/" "a3landmarg" ".ly") (lib-resources-folder (find-library "omlily")))
+    :midioutput nil
+    :paper-size "a4"
+    :paper-orientation "portrait"
+    :paper-other (merge-pathnames (string+ "lily-templates/sizes/" "paper" ".ly") (lib-resources-folder (find-library "omlily"))) 
     :layout-file (merge-pathnames (string+ "lily-templates/layouts/" "template" ".ly") (lib-resources-folder (find-library "omlily")))
     ))
 
@@ -143,7 +155,10 @@
     (setf *split-note* (get-pref modulepref :split-note))
     (setf *default-comp-mode*     (get-pref modulepref :comp-mode))
     (setf *lily-dyn-on* (get-pref modulepref :lily-dyn-on))
+    (setf *midioutput* (get-pref modulepref :midioutput))
     (setf *lily-paper-size* (get-pref modulepref :paper-size))
+    (setf *lily-paper-orientation* (get-pref modulepref :paper-orientation))
+    (setf *lily-paper-other* (get-pref modulepref :paper-other))
     (setf *lily-layout-file* (get-pref modulepref :layout-file))
     ))
 
@@ -155,7 +170,10 @@
                   :split-note ,*split-note*
                   :comp-mode ,*default-comp-mode*
                   :lily-dyn-on ,*lily-dyn-on*
-                  :paper-size ,(om-save-pathname *lily-paper-size*)
+                  :midioutput ,*midioutput*
+                  :paper-size ,*lily-paper-size*
+                  :paper-orientation ,*lily-paper-orientation*
+                  :paper-other ,(om-save-pathname *lily-paper-other*)
                   :layout-file ,(om-save-pathname *lily-layout-file*)
                   ) *om-version*))
 
@@ -254,32 +272,63 @@
                                           :di-action (om-dialog-item-act item 
                                                        (set-pref modulepref :lily-dyn-on (om-checked-p item))))
                      
+                     (om-make-dialog-item 'om-static-text (om-make-point (+ 50 165)  i) (om-make-point 120 20) "Export Midi"
+                                          :font *controls-font*)
+
+                     (om-make-dialog-item 'om-check-box (om-make-point (+ 165 135)  i) (om-make-point 30 10) ""
+                                          :font *controls-font*
+                                          :checked-p (get-pref modulepref :midioutput)
+                                          :di-action (om-dialog-item-act item 
+                                                       (set-pref modulepref :midioutput (om-checked-p item))))
                      )
 
     (setf posy 0)
     
     (om-add-subviews thescroll
                     
-                     (om-make-dialog-item 'om-static-text (om-make-point l2 (incf posy 50)) (om-make-point 200 30) "Template Files"
-                                          :font *om-default-font2b*)
+                    ; (om-make-dialog-item 'om-static-text (om-make-point l2 (incf posy 50)) (om-make-point 200 30) "Template Files"
+                    ;                      :font *om-default-font2b*)
 
-                     (om-make-dialog-item 'om-static-text  (om-make-point l2 (incf posy dy)) (om-make-point 80 22) "Paper size:"
+                     (om-make-dialog-item 'om-static-text (om-make-point l2 (incf posy dy)) (om-make-point 80 22) "Paper Size"
                                           :font *controls-font*)
+
+                     (om-make-dialog-item 'om-pop-up-dialog-item (om-make-point (+ l2 75) (- posy 5)) (om-make-point 80 22) ""
+                                          :range '("a4" "a3")
+                                          :value (if (equal "a4"  *lily-paper-size*) "a4" "a3")
+					  :di-action (om-dialog-item-act item 
+                                                       (let ((choice (om-get-selected-item item)))
+                                                         (set-pref modulepref :paper-size
+                                                                   (if (string-equal choice "a4") "a4" "a3"))))
+					  :font *controls-font*)
+
+                     (om-make-dialog-item 'om-static-text (om-make-point l2 (incf posy dy)) (om-make-point 80 22) "Orientation"
+                                          :font *controls-font*)
+
+                     (om-make-dialog-item 'om-pop-up-dialog-item (om-make-point (+ l2 75) (- posy 5)) (om-make-point 100 22) ""
+                                          :range '("portrait" "landscape")
+                                          :value (if (equal "a4"  *lily-paper-orientation*) "portrait" "landscape")
+					  :di-action (om-dialog-item-act item 
+                                                       (let ((choice (om-get-selected-item item)))
+                                                         (set-pref modulepref :paper-orientation
+                                                                   (if (string-equal choice "portrait") "portrait" "landscape"))))
+					  :font *controls-font*)
+                     
+
+                     (om-make-dialog-item 'om-static-text  (om-make-point l2 (incf posy 40)) (om-make-point 80 22) "Paper:" :font *controls-font*)
                      (setf outtxt (om-make-dialog-item 'om-static-text  (om-make-point l2 (incf posy 25)) (om-make-point 320 45)
-                                                       (om-namestring (get-pref modulepref :paper-size))
+                                                       (om-namestring (get-pref modulepref :paper-other))
                                           :font *om-default-font1*))
                      
                      (om-make-view 'om-icon-button 
-                                                      :icon1 "folder" :icon2 "folder-pushed"
-                                                      :position (om-make-point l3 (- posy 5)) :size (om-make-point 26 25) 
-                                                      :action (om-dialog-item-act item
-                                                                         (declare (ignore item))
-                                                                         (let ((file (om-choose-file-dialog)))
-                                                                           (when file
-                                                                             (om-set-dialog-item-text outtxt (om-namestring file))
-                                                                             (set-pref modulepref :paper-size file)))))
+                                   :icon1 "folder" :icon2 "folder-pushed"
+                                   :position (om-make-point l3 (- posy 5)) :size (om-make-point 26 25) 
+                                   :action (om-dialog-item-act item
+                                             (declare (ignore item))
+                                             (let ((file (om-choose-file-dialog)))
+                                               (when file
+                                                 (om-set-dialog-item-text outtxt (om-namestring file))
+                                                                             (set-pref modulepref :paper-other file)))))
                      
-
                      (om-make-dialog-item 'om-static-text  (om-make-point l2 (incf posy 40)) (om-make-point 80 22) "Layout:" :font *controls-font*)
                      (setf tmptxt (om-make-dialog-item 'om-static-text  (om-make-point l2 (incf posy 25)) (om-make-point 320 45)
                                                        (om-namestring (get-pref modulepref :layout-file))
