@@ -106,11 +106,13 @@
 
 (defvar *lily-clef* nil)
 (setf *lily-clef* (format nil "(\"~D\")" "G"))
+
 (defvar *split-note* "6000")
+(setf *split-note* "6000")
 
 (defvar *default-comp-mode* 0)
 
-(defvar *lily-paper-other* (merge-pathnames (string+ "lily-templates/sizes/" "paper" ".ly") (lib-resources-folder (find-library "omlily"))))
+(defvar *lily-paper-other* (merge-pathnames (string+ "lily-templates/paper/" "paper" ".ly") (lib-resources-folder (find-library "omlily"))))
 (defvar *lily-layout-file* (merge-pathnames (string+ "lily-templates/layouts/" "template" ".ly") (lib-resources-folder (find-library "omlily"))))
 
 (defvar *lily-dyn-on* nil)
@@ -137,7 +139,7 @@
     :midioutput nil
     :paper-size "a4"
     :paper-orientation "portrait"
-    :paper-other (merge-pathnames (string+ "lily-templates/sizes/" "paper" ".ly") (lib-resources-folder (find-library "omlily"))) 
+    :paper-other (merge-pathnames (string+ "lily-templates/paper/" "paper" ".ly") (lib-resources-folder (find-library "omlily"))) 
     :layout-file (merge-pathnames (string+ "lily-templates/layouts/" "template" ".ly") (lib-resources-folder (find-library "omlily")))
     ))
 
