@@ -7,15 +7,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-;;Put \dislayMusic IN every \new Staff declaration
-;;normaly it's done in om2lily
-;\new Staff  {
-;\displayMusic
-;\one
-;}
-
-
-
 ;;this is to have durations or pitch. t => durations
 ;;;; *lil-imp-pitch*  -> nil ---> pitch
 ;;;; *lil-imp-pitch*  -> t ---> RT
@@ -80,61 +71,11 @@
 ;;; (fmakunbound 'make-music) 
 
 
-;;stdby
 (defmethod make-music ((type (eql 'ContextSpeccedMusic)) &rest other-args)
 (find-value-in-lily-args other-args 'element))
 
-#|
-(defmethod make-music ((type (eql 'ContextSpeccedMusic)) &rest other-args)
-)
-|#
-
-;(defmethod make-music ((type (eql 'ContextSpeccedMusic)) &rest other-args)
-;(let* ((staff (find-value-in-lily-args other-args 'context-type)))
-;  (if (not (equal 'Staff staff)) (find-value-in-lily-args other-args 'element)))) 
 
 
-;(defmethod make-music ((type (eql 'SimultaneousMusic)) &rest other-args)
-;(find-value-in-lily-args other-args 'elements))
-
-#|
-(defmethod make-music ((type (eql 'ContextSpeccedMusic)) &rest other-args)
-(if (equal (find-value-in-lily-args other-args 'context-type) 'StaffGroup) 
-    (loop for i in (find-value-in-lily-args other-args 'element)
-          collect i)
-
-  (find-value-in-lily-args other-args 'element)))
-|#
-
-
-#|
-(defmethod make-music ((type (eql 'ContextSpeccedMusic)) &rest other-args)
-(let ((res '()))
-  
-(if (equal (find-value-in-lily-args other-args 'context-type) 'StaffGroup) 
-    (loop for i in (find-value-in-lily-args other-args 'element)
-          do (push (car i) res))
-
-  (push (list (cdar (find-value-in-lily-args other-args 'element))) res))
-(reverse res)
-  ))
-  
-|#
-
-
-;we are using the initial method. -a voir
-#|
-(defmethod make-music ((type (eql 'ContextSpeccedMusic)) &rest other-args)
-(let ((res '()))
-  
-(if (equal (find-value-in-lily-args other-args 'context-type) 'StaffGroup) 
-    (loop for i in (find-value-in-lily-args other-args 'element)
-          do (push (car i) res))
-  (if (cdar (find-value-in-lily-args other-args 'element))
-  (push (list (cdar (find-value-in-lily-args other-args 'element))) res)))
-(reverse res)
-  ))
-|#  
 ;;;;;;;;;;;
 
 
@@ -650,7 +591,8 @@ meaning RT containing other RTs"
 
 
 (defun translate->RT (tree)
-  (let* ((get-dur (get-durs-of-ratios tree))
+  (let* ((tree (if (atom tree) (list tree) tree))
+         (get-dur (get-durs-of-ratios tree))
          (reduce-dur (reduce-S get-dur)))
         (loop for i in tree
               for em in reduce-dur
@@ -660,16 +602,7 @@ meaning RT containing other RTs"
                         )))
 
 
-
-
-
-;comes out from 
-
 ;(translate->RT '(5/24 5/24 (5/36 (5/216 5/216 5/216))))
-;(translate->RT '((120/361 (120/361 30/361 ) 210/361 90/361) (160/361 40/361 280/361 120/361 160/361) (350/361 150/361 200/361 200/361 50/361) (210/361 280/361 280/361 70/361 490/361)))                       
-
-;
-
 
 ;;########################################rests and floats positions#######################################
 
@@ -724,29 +657,7 @@ meaning RT containing other RTs"
 
 
 ;;;;;
-#|
-(defun read-lily-file (pathname)
-  (with-open-file (file pathname :direction :input)
-    (let ((current-line (read-line file nil nil)))
-      (let* ((str 
-              (apply 'concatenate
-                     (cons 'string
-                           (cons current-line 
-                                 (loop while current-line collect
-                                       (setf current-line 
-                                             (substitute #\- #\:
-                                                         (read-line file nil nil)           
-                                                         ))
-                                       )))))
-             (str (replace-all str "#f " "'f"))
-             (str (replace-all str "#t " "'t"))
-             (str (replace-all str "<" "'("))
-             (str (replace-all str ">" ")"))
-             (str (replace-all str "#" " "))
-            )
-        (read-from-string str)))))
-|#
-;;;;changed 'coz list too long to apply !
+
 
 (defun remove-markup  (lst)
   (if (atom lst) lst
@@ -785,64 +696,6 @@ meaning RT containing other RTs"
 
 ;;this acts as a filter - chords or durs objects
 
-#|
-(defun lily-chord-or-dur (pathname mode)
-"if mode = t => dur, nil => chords"
-(let ((mod (if mode 
-               (setf *lil-imp-pitch* t)
-             (setf *lil-imp-pitch* nil))))
-  (caar (eval (read-lily-file pathname)))))
-
-;;;changed when having more than one staffgroup
-
-(defun lily-chord-or-dur (pathname mode)
-"if mode = t => dur, nil => chords"
-(let* ((mod (if mode 
-               (setf *lil-imp-pitch* t)
-             (setf *lil-imp-pitch* nil)))
-      (vx (eval (read-lily-file pathname))))
-  (if (> (length (car vx)) 1) 
-       (caar (list (list (x-append (car vx) (cadr vx)))))
-    (caar vx)))
-  )
-
-
-(defun lily-chord-or-dur (pathname mode)
-"if mode = t => dur, nil => chords"
-(let* ((mod (if mode 
-               (setf *lil-imp-pitch* t)
-             (setf *lil-imp-pitch* nil)))
-      (vx (eval (read-lily-file pathname))))
-  
-  (x-append (caar vx) (x-append (car (cdar vx)) (cadr (cdar vx))))))
-
-
-(defun lily-chord-or-dur (pathname mode)
-"if mode = t => dur, nil => chords"
-(let* ((mod (if mode 
-               (setf *lil-imp-pitch* t)
-             (setf *lil-imp-pitch* nil)))
-      (vx (eval (read-lily-file pathname)))
-      (voices (x-append (caar vx) (x-append (car (cdar vx)) (cadr (cdar vx))))))
-  (loop for i in voices 
-        collect (if (= (length i) 1) i (list i)))))  
-
-
-|#
- 
-
-(defun lily-chord-or-dur (pathname mode)
-"if mode = t => dur, nil => chords"
-(let* ((mod (if mode 
-               (setf *lil-imp-pitch* t)
-             (setf *lil-imp-pitch* nil)))
-      (vx (eval (read-lily-file pathname))))
-  (car (mapcar 'flat-once vx))))
-  
- 
-
-
-
 ;;groups measures in one voice
 (defun grp-meas (list)
   (let* ((ord (car list)) ;;cAr
@@ -850,7 +703,9 @@ meaning RT containing other RTs"
          timesig
          (grouping (loop for i in ord
                          for n in (cdr ord)
-                         do (cond  ((and (listp i) (equal (car i) 'timesignaturemusic)) 
+                         do (cond  ((and (listp i) (listp (car i)) (equal (caar i) 'tempochangeevent))
+                                    )
+                                    ((and (listp i) (equal (car i) 'timesignaturemusic)) 
                                     (progn 
                                       (setf timesig (second i))
                                       (push (remove nil (list timesig (cddr i))) resultat)
@@ -867,7 +722,7 @@ meaning RT containing other RTs"
                                         (push i (first resultat))
                                         (pop ord))))))
          )
-    ;(print grouping)
+   ; (print grouping)
     (cdr (reverse (loop for i in resultat     ;;;cAdr NO !!
                         collect  (let ((rev (reverse i)))
                                    (if (typep (cadr rev) 'lily-dur)
@@ -877,7 +732,9 @@ meaning RT containing other RTs"
 
 
 
-
+(defun all-grp-meas (list)
+  (loop for i in list
+        collect (grp-meas i)))
 
 
 
@@ -889,9 +746,10 @@ meaning RT containing other RTs"
 
 
 (defun get-lily-chords (file)
-  (let ((stream (lily-chord-or-dur file nil)))
+  (let* ((stream (lily-chord-or-dur file nil))
+        (grouped (all-grp-meas stream)))
     (loop for i in stream
-          collect (lily-notes (remove-tempi (grp-meas i))))))
+          collect (lily-notes (remove-tempi i)))))
     
 
 
@@ -913,11 +771,11 @@ meaning RT containing other RTs"
 
 
 
-(defun lily-tree (file)
-  (let* ((grp (remove-tempi (grp-meas file)))
-         (meas (get-lily-measures grp))
-         (timesig (mapcar 'car meas))
-         (lildurs (mapcar 'cadr meas))
+(defun lily-tree (voice)
+  "one voice"
+  ;(print (all-grp-meas file))
+  (let* ((timesig (mapcar 'car voice))
+         (lildurs (mapcar 'cadr voice))
          (ratios (loop for i in lildurs
                        collect  (let ((obj (if (= 1 (length i)) (car i) i)))
                                   (c-obj-tup (comp-obj obj)))))
@@ -927,7 +785,7 @@ meaning RT containing other RTs"
                                   for s in conv
                                   collect (list m s))))
          (puls (givepulses measures))
-         (rst-ties (tie-rest-list meas)) ;;;prob with tie-rest-list !!! index too large ? mon cul!
+         (rst-ties (tie-rest-list voice)) 
 ;;;prevoir si derniere note est liee ENLEVER LE SHIT !
          (newpuls (om* puls rst-ties))
          (tree (copy-rtree measures newpuls)))
@@ -936,13 +794,17 @@ meaning RT containing other RTs"
 
 
 
-
-
-
+(defun lily-chord-or-dur (pathname mode)
+"if mode = t => dur, nil => chords"
+(let ((mod (if mode 
+               (setf *lil-imp-pitch* t)
+             (setf *lil-imp-pitch* nil))))
+       (eval (read-lily-file pathname))))
 
 (defun get-lily-tree (file)
-  (let* ((stream (lily-chord-or-dur file t)))
-    (loop for i in stream
+  (let* ((stream (lily-chord-or-dur file t))
+         (grouped (all-grp-meas stream)))
+    (loop for i in grouped
           collect (lily-tree i))))
 
 
@@ -976,7 +838,7 @@ meaning RT containing other RTs"
          (init-tempo (if (equal head 'timesignaturemusic) 
                          (list (list 0 (list 'tempochangeevent 60 1/4))) ;;;if no tempo while using spec
                        (list (list 0 (caaar file)))))
-         (other-tempi (filter-tmp-chng (grp-meas file))))
+         (other-tempi (filter-tmp-chng (all-grp-meas file))))
     (x-append init-tempo other-tempi)))
 
 
@@ -1035,7 +897,7 @@ meaning RT containing other RTs"
               (when file
                 (let* ((notes (get-lily-chords file))
                        (tree (get-lily-tree file))
-                       (tempo (car (get-lily-tempo file)))
+                       (tempo (car (get-lily-tempo file)));;;needs to be fixed [indexing tempo measures]
                        (voices (loop for n in notes
                                      for tr in tree
                                      collect (make-instance 'voice
