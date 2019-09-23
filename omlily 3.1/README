@@ -38,7 +38,7 @@ COMPATIBILITY
 INSTALLATION
 
 
-Copy the library folder in /OpenMusicX/libraries folder.
+Install the folder 'omlily 3.x' in your OpenMusic desired path. 
 
 
 LINUX 
@@ -64,9 +64,10 @@ USAGE
 OM->LILY
 
 om->lily will export and compile VOICE, POLY, CHORD-SEQ and MULTI-SEQ objects into lilypond *.ly files.
+It has two modes for generating the score according to the nature of the polyphony:
 
-
-
+   -Generic: for most of the music that is set without polymetrics and polytempi.
+   -Polymetric : for special cases where music is polymetric and polytempic music
 
 
 LILY->OM
@@ -78,6 +79,9 @@ In order to import *.ly files into OpenMusic objects (POLY), you will have to :
    
 \score { 
  { 
+
+...
+
 
 % #(with-output-to-file "temp.lisp" --> uncomment
 % (lambda () #{ \displayMusic {     --> uncomment
@@ -95,13 +99,15 @@ In order to import *.ly files into OpenMusic objects (POLY), you will have to :
 
 
 
-IMPORTANT:
+Important:
 
 The Lilypond/Openmusic communication will work ONLY with om->lily generated files. 
 
+- "barchecks" are mandatory. If they are absent this will output erronous rhtyhms.
+
 If not, please be really carefull when :
 
-1) in case of a single voice, or a single PianoStaff to group them between << and >> in the Score section
+1) In case of a single voice, or a single PianoStaff to group them between << and >> in the Score section
 
 2) For general cases of music, put bar checks after each measures.
 
@@ -110,4 +116,29 @@ If not, please be really carefull when :
 PianoStaff is not yet integrated nor the CHORD-SEQ export.
 
 
+PREFERENCES
 
+
+The preference panel under the Lilypond tab :
+
+-Title 	       : sets the title of the score.
+
+-Composer      : sets the composer's name of the score.
+
+-Options:
+
+	-Clefs		  : sets the clefs. 
+	-Clef Change  	  : sets the switching of clefs (from G to F) in midicents. 
+	-Compilation mode : sets the compilation mode generic/polymetric according to
+		     	    the given music.
+
+	-Export Dynamics  : if checked, all dynamics will be exported without repetition.
+	-Export Midi	  : if checked, will compile also a midi file.
+
+-Paper Size	: sets the paper size a4/a3.
+
+-Orientation	: sets portait/landscape.
+
+-Paper		: Choose a template for more specific paper preferences (margins, page numbering, ...)
+
+-Layout		: Choose a template for most Lilypond specific preferences and contexts.
