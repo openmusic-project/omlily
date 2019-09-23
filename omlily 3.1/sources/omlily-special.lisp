@@ -15,6 +15,27 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;;general tools 
+
+;for finding previous or next obj, rest, chord or continuation...
+
+(defun lil-prv-cont (self)
+  (om::previous-container self '(om::chord om::rest)))
+
+(defun lil-nxt-cont (self)
+  (om::next-container self '(om::chord om::rest)))
+
+
+(defun first-of-this-group (self grp)
+       (let ((frst (car (om::collect-chords grp))))
+         (equal self frst)))
+
+(defun last-of-this-group (self grp)
+       (let ((lst (car (reverse (om::collect-chords grp)))))
+         (equal self lst)))
+
+;;;;
+
 
 ;;tools for tempo
 
@@ -450,33 +471,54 @@ rep))
     ;;;; FOR STEMING
     ;;;;
     (let ((elmpos (car (element-position self *chords-and-cont*))))
-      (if (= elmpos (- (length *chords-and-cont*) 1))
-
-          (if (and *switch* (< durtot 1/4)) ;;;;this is for the last one 
-              (setf str (string+ str "]")))
+   (cond
+    ;;;pour la derniere note
+       ((and 
+        *switch*
+        (< durtot 1/4)
+        (= elmpos (- (length *chords-and-cont*) 1)))
+       (progn 
+         (setf str (string+ str "]"))
+         (setf *switch* nil)))
       
-    
-        (cond 
+      ((and 
+        (not *switch*)
+        (< durtot 1/4)
+        (< (nth (+ 1 elmpos) *treeratios*) 1/4)
+       (not (rest-p (lil-nxt-cont self))))
+       
+       (progn
+         (setf str (string+ str "["))
+         (setf *switch* t)))
+       
+      
+      ((and 
+        *switch*
+        (< durtot 1/4)
+        (>= (nth (+ 1 elmpos) *treeratios*) 1/4))
+       (progn
+         (setf str (string+ str "]"))
+         (setf *switch* nil)))
 
-
-         ((and (not *switch*)
-               (and (< durtot 1/4)
-                    (< (nth (+ 1 elmpos) *treeratios*) 1/4)))
-          (progn
-            (setf str (string+ str "["))
-            (setf *switch* t)))
-     
-
-
-
-         ((and *switch*
-               (< durtot 1/4)
-               (>= (nth (+ 1 elmpos) *treeratios*) 1/4))
-          (progn
-            (setf str (string+ str "]"))
-            (setf *switch* nil)))
-         (t 
-          ))))
+      ((and 
+        *switch*
+        (< durtot 1/4)
+        (last-of-this-group self (parent self)))
+       (progn
+         (setf str (string+ str "]"))
+         (setf *switch* nil)))
+      
+      ((and 
+        *switch*
+        (< durtot 1/4)
+        (rest-p (lil-nxt-cont self))
+        )
+       (progn
+         (setf str (string+ str "]"))
+         (setf *switch* nil)))
+      
+      (t 
+       )))
  
     (if *lily-dyn-on*
         (if (not (equal dyn *tempdyn*))
@@ -499,7 +541,9 @@ rep))
     )
   )
 
+
 (defmethod cons-lily-tempo-expr-switch ((self om::chord) dur ratio switch)
+ ; (print (next-chord self))
   (let* ((clef *clef-switch*)
          (reg (if (< (car (lmidic self)) switch) 
                   (setf *clef-switch* 1)
@@ -595,33 +639,54 @@ rep))
  ;;;; FOR STEMING
  ;;;;
  (let ((elmpos (car (element-position self *chords-and-cont*))))
-   (if (= elmpos (- (length *chords-and-cont*) 1))
-
-       (if (and *switch* (< durtot 1/4)) ;;;;this is for the last one 
-           (setf str (string+ str "]")))
+   (cond
+    ;;;pour la derniere note
+       ((and 
+        *switch*
+        (< durtot 1/4)
+        (= elmpos (- (length *chords-and-cont*) 1)))
+       (progn 
+         (setf str (string+ str "]"))
+         (setf *switch* nil)))
       
-    
-     (cond 
-
-
-      ((and (not *switch*)
-            (and (< durtot 1/4)
-                 (< (nth (+ 1 elmpos) *treeratios*) 1/4)))
+      ((and 
+        (not *switch*)
+        (< durtot 1/4)
+        (< (nth (+ 1 elmpos) *treeratios*) 1/4)
+       (not (rest-p (lil-nxt-cont self))))
+       
        (progn
          (setf str (string+ str "["))
          (setf *switch* t)))
-     
-
-
-
-      ((and *switch*
-            (< durtot 1/4)
-            (>= (nth (+ 1 elmpos) *treeratios*) 1/4))
+       
+      
+      ((and 
+        *switch*
+        (< durtot 1/4)
+        (>= (nth (+ 1 elmpos) *treeratios*) 1/4))
        (progn
          (setf str (string+ str "]"))
          (setf *switch* nil)))
+
+      ((and 
+        *switch*
+        (< durtot 1/4)
+        (last-of-this-group self (parent self)))
+       (progn
+         (setf str (string+ str "]"))
+         (setf *switch* nil)))
+      
+      ((and 
+        *switch*
+        (< durtot 1/4)
+        (rest-p (lil-nxt-cont self))
+        )
+       (progn
+         (setf str (string+ str "]"))
+         (setf *switch* nil)))
+      
       (t 
-       ))))
+       )))
  
  (if *lily-dyn-on*
      (if (not (equal dyn *tempdyn*))
@@ -643,6 +708,8 @@ rep))
     (list str)
     )
 )
+
+
 
 
 (defmethod cons-lily-tempo-ex-expr ((self om::rest) dur ratio switch)
@@ -686,37 +753,8 @@ rep))
       
 
  ;;;; FOR STEMING
- ;;;;
-      (let ((elmpos (car (element-position self *chords-and-cont*))))
-        (if (= elmpos (- (length *chords-and-cont*) 1))
-          
-          (if (and *switch* (< durtot 1/4)) ;;;;this is for the last one 
-           ; (setf str (string+ str "]"))
-              t
-            )
-          
-          
-          (cond 
-           
-           
-           ((and (not *switch*)
-                 (and (< durtot 1/4)
-                      (< (nth (+ 1 elmpos) *treeratios*) 1/4)))
-            (progn
-              ;(setf str (string+ str "["))
-              (setf *switch* t)))
-           
-           ((and *switch*
-                 (< durtot 1/4)
-                 (>= (nth (+ 1 elmpos) *treeratios*) 1/4))
-            (progn
-             ; (setf str (string+ str "]"))
-              (setf *switch* nil)))
-           (t 
-            ))))  
-
-
-      )
+ ;;;;---removed--
+ )
  (list str)
     
     ))
