@@ -728,7 +728,7 @@ rep))
 
 
 (defmethod cons-lil-expr-extr ((self om::chord) dur switch)
-(if switch 
+(if *split-mode* ;switch 
     (cons-lil-expr-extr-switch self dur switch)
   (cons-lil-expr-extr-simp  self dur)))
   
