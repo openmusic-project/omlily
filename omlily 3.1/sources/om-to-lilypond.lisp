@@ -4,7 +4,7 @@
 
 
 (defmethod! om->lily ((self poly) 
-                      &optional 
+                      &key 
                       (mode nil)
                       (clef nil)
                       (switch nil)
@@ -36,7 +36,7 @@
 
 
 (defmethod! om->lily ((self voice) 
-                        &optional 
+                        &key
                         (mode nil)
                         (clef nil)
                         (switch nil)
@@ -72,7 +72,7 @@
 
 
 (defmethod! om->lily ((self chord-seq) 
-	                     &optional	
+	                     &key	
                              (mode nil)
                              (clef nil)
                              (switch nil)
@@ -87,7 +87,7 @@
 
 
 (defmethod! om->lily ((self multi-seq) 
-	               &optional
+	               &key
                        (mode nil)
                        (clef nil)
                        (switch nil)
