@@ -45,6 +45,7 @@
                                "chord-seq-to-pdf"
                                "omlily-gen"
                                "omlily-special"
+                               "om2lily"
 			       "lilypond-to-om"
 			       "lily-rebar"
                                ))
