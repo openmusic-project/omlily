@@ -107,6 +107,8 @@
 (defvar *lily-clef* nil)
 (setf *lily-clef* (format nil "(\"~D\")" "G"))
 
+(defvar *split-mode* nil)
+
 (defvar *split-note* "6000")
 (setf *split-note* "6000")
 
@@ -133,6 +135,7 @@
     :lily-title "Title"
     :user-name "El Guapo" 
     :lily-clef (format nil "(\"~D\")" "G")
+    :split-mode nil
     :split-note "6000"
     :comp-mode 0
     :lily-dyn-on t
@@ -154,6 +157,7 @@
     (setf *lily-title* (get-pref modulepref :lily-title))
     (setf *lily-composer-name* (get-pref modulepref :user-name))
     (setf *lily-clef* (get-pref modulepref :lily-clef))
+    (setf *split-mode* (get-pref modulepref :split-mode))
     (setf *split-note* (get-pref modulepref :split-note))
     (setf *default-comp-mode*     (get-pref modulepref :comp-mode))
     (setf *lily-dyn-on* (get-pref modulepref :lily-dyn-on))
@@ -169,6 +173,7 @@
                   :lily-title ,*lily-title*
                   :user-name ,*lily-composer-name* 
                   :lily-clef ,*lily-clef*
+                  :split-mode ,*split-mode*
                   :split-note ,*split-note*
                   :comp-mode ,*default-comp-mode*
                   :lily-dyn-on ,*lily-dyn-on*
@@ -247,7 +252,14 @@
 
                      (om-make-dialog-item 'om-static-text  (om-make-point 50 (incf i 40)) (om-make-point 120 20) "Clef Change"
                                           :font *controls-font*)
-                     (om-make-dialog-item 'om-editable-text (om-make-point 170 i)  (om-make-point 37 13)
+
+                     (om-make-dialog-item 'om-check-box (om-make-point 165 i) (om-make-point 30 10) ""
+                                          :font *controls-font*
+                                          :checked-p (get-pref modulepref :split-mode)
+                                          :di-action (om-dialog-item-act item 
+                                                       (set-pref modulepref :split-mode (om-checked-p item))))
+
+                     (om-make-dialog-item 'om-editable-text (om-make-point 200 i)  (om-make-point 60 13)
                                           (format nil "~D" (get-pref modulepref :split-note))
                                           :modify-action (om-dialog-item-act item (set-pref modulepref :split-note (om-dialog-item-text item)))
                                           :font *om-default-font2*)
