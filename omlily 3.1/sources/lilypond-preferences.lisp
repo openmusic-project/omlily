@@ -320,7 +320,7 @@
 
                      (om-make-dialog-item 'om-pop-up-dialog-item (om-make-point (+ l2 75) (- posy 5)) (om-make-point 100 22) ""
                                           :range '("portrait" "landscape")
-                                          :value (if (equal "a4"  *lily-paper-orientation*) "portrait" "landscape")
+                                          :value (if (equal "portrait"  *lily-paper-orientation*) "portrait" "landscape")
 					  :di-action (om-dialog-item-act item 
                                                        (let ((choice (om-get-selected-item item)))
                                                          (set-pref modulepref :paper-orientation
