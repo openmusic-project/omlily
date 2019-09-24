@@ -200,6 +200,8 @@ rep))
   ;(setf *treeratios* (om-abs (treeratio (om-round (tree self)))))
   ;(setf *switch* nil)
   (setf *tempdyn* nil)
+  (setf *clef-switch* 0);new
+  (setf *clef-switch-b* 0);new
   (setf *mesure-num* 0)
   (setf *mesure-qtempo* (qtempo self))
   (let ((rep (list (format nil "~s=" (cassq *voice-num* *voice-rank* )) "{" 
@@ -373,7 +375,7 @@ rep))
 
 
 (defmethod cons-lily-tempo-ex-expr ((self om::chord) dur ratio switch)
-    (if switch 
+    (if *split-mode* ;switch 
              (cons-lily-tempo-expr-switch self dur ratio switch)
            (cons-lily-tempo-expr-norm self dur ratio))
          )
