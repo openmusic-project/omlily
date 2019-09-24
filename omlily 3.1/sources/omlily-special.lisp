@@ -485,7 +485,8 @@ rep))
         (not *switch*)
         (< durtot 1/4)
         (< (nth (+ 1 elmpos) *treeratios*) 1/4)
-       (not (rest-p (lil-nxt-cont self))))
+       (not (rest-p (lil-nxt-cont self)))
+       (not(last-of-this-group self (parent self))))
        
        (progn
          (setf str (string+ str "["))
@@ -653,7 +654,8 @@ rep))
         (not *switch*)
         (< durtot 1/4)
         (< (nth (+ 1 elmpos) *treeratios*) 1/4)
-       (not (rest-p (lil-nxt-cont self))))
+       (not (rest-p (lil-nxt-cont self)))
+       (not(last-of-this-group self (parent self))))
        
        (progn
          (setf str (string+ str "["))
