@@ -367,37 +367,3 @@ to c4 and returns a multiseq"
 
 
 
-
-
-(defmethod! om->lily ((self chord-seq) 
-	                     &optional	
-                             (mode nil)
-                             (clef nil)
-                             (switch nil)
-                             (path nil))
-            (let* ((ressource-folder (lib-resources-folder (find-library "omlily")))
-                   (paperfile *lily-paper-other*)
-                   (layoutfile (merge-pathnames (string+ "lily-templates/layouts/" "template" ".ly") ressource-folder))
-                   (pathname (or path (om-choose-new-file-dialog)))
-                   (lilyfile (write-crdseq-lily-file (staff-data self) pathname))
-                   )
-              (run-lilypond lilyfile)))
-
-
-(defmethod! om->lily ((self multi-seq) 
-	               &optional
-                       (mode nil)
-                       (clef nil)
-                       (switch nil)
-                       (path nil))
-            (let* ((ressource-folder (lib-resources-folder (find-library "omlily")))
-                   (paperfile *lily-paper-other*)
-                   (layoutfile (merge-pathnames (string+ "lily-templates/layouts/" "template" ".ly") ressource-folder))
-                   (pathname (or path (om-choose-new-file-dialog)))
-                   (lilyfile (write-multiseq-lily-file 
-                              (staff-data self)
-                              pathname))
-                   )
-              (run-lilypond lilyfile)))
-
-
