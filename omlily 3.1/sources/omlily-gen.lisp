@@ -913,7 +913,7 @@ rep))
       (format out "\\version \"~A\"~%~%" version )
         (format out "\\version \"2.18\"~%~%"))
       ;;;;page sizes
-      (format out "#(set-default-paper-size \"~D~D\")~%" "a3" "portrait")
+      (format out "#(set-default-paper-size \"~D~D\")~%" *lily-paper-size* *lily-paper-orientation*)
       (WITH-OPEN-FILE (in paper :direction :input)
         (loop 
          while (not (file-eof-p in))
