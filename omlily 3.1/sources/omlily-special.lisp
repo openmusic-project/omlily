@@ -824,8 +824,9 @@ rep))
 
 
 
-
-
+#|
+;;not needed anymore
+;;;TO BE REMOVED
 (defmethod! om->lily-tempo-ex ((self poly) &optional 
                                (clef nil)
                                (switch nil)
@@ -862,7 +863,7 @@ rep))
                               (cons-lily-tempo-ex-expr (make-instance 'poly
                                                                       :voices self) clef nil switch) pathname paperfile layoutfile)))
               (run-lilypond lilyfile)))
-
+|#
 ;;;;;;;;
 
 
