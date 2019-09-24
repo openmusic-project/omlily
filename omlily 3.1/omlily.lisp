@@ -69,7 +69,7 @@
       '((nil  nil nil (
                        om->lily
                        lily->om
-                       lily->om-rebar
+                      ;lily->om-rebar
                        ) nil)))
 
 ;--------------------------------------------------
