@@ -473,55 +473,51 @@ rep))
     ;;;; FOR STEMING
     ;;;;
     (let ((elmpos (car (element-position self *chords-and-cont*))))
-   (cond
-    ;;;pour la derniere note
-       ((and 
-        *switch*
-        (< durtot 1/4)
-        (= elmpos (- (length *chords-and-cont*) 1)))
-       (progn 
-         (setf str (string+ str "]"))
-         (setf *switch* nil)))
-      
-      ((and 
-        (not *switch*)
-        (< durtot 1/4)
-        (< (nth (+ 1 elmpos) *treeratios*) 1/4)
+   (if (= elmpos (- (length *chords-and-cont*) 1))
+
+       (if (and *switch* (< durtot 1/4)) ;;;;this is for the last one 
+           (setf str (string+ str "]")))
+
+    (cond 
+     ((and 
+       (not *switch*)
+       (< durtot 1/4)
+       (< (nth (+ 1 elmpos) *treeratios*) 1/4)
        (not (rest-p (lil-nxt-cont self)))
        (not(last-of-this-group self (parent self))))
        
-       (progn
-         (setf str (string+ str "["))
-         (setf *switch* t)))
+      (progn
+        (setf str (string+ str "["))
+        (setf *switch* t)))
        
       
-      ((and 
-        *switch*
-        (< durtot 1/4)
-        (>= (nth (+ 1 elmpos) *treeratios*) 1/4))
-       (progn
-         (setf str (string+ str "]"))
-         (setf *switch* nil)))
+     ((and 
+       *switch*
+       (< durtot 1/4)
+       (>= (nth (+ 1 elmpos) *treeratios*) 1/4))
+      (progn
+        (setf str (string+ str "]"))
+        (setf *switch* nil)))
 
-      ((and 
-        *switch*
-        (< durtot 1/4)
-        (last-of-this-group self (parent self)))
-       (progn
-         (setf str (string+ str "]"))
-         (setf *switch* nil)))
+     ((and 
+       *switch*
+       (< durtot 1/4)
+       (last-of-this-group self (parent self)))
+      (progn
+        (setf str (string+ str "]"))
+        (setf *switch* nil)))
       
-      ((and 
-        *switch*
-        (< durtot 1/4)
-        (rest-p (lil-nxt-cont self))
-        )
-       (progn
-         (setf str (string+ str "]"))
-         (setf *switch* nil)))
+     ((and 
+       *switch*
+       (< durtot 1/4)
+       (rest-p (lil-nxt-cont self))
+       )
+      (progn
+        (setf str (string+ str "]"))
+        (setf *switch* nil)))
       
-      (t 
-       )))
+     (t 
+      ))))
  
     (if *lily-dyn-on*
         (if (not (equal dyn *tempdyn*))
@@ -543,6 +539,7 @@ rep))
     (list str)
     )
   )
+
 
 
 (defmethod cons-lily-tempo-expr-switch ((self om::chord) dur ratio switch)
@@ -642,55 +639,51 @@ rep))
  ;;;; FOR STEMING
  ;;;;
  (let ((elmpos (car (element-position self *chords-and-cont*))))
-   (cond
-    ;;;pour la derniere note
-       ((and 
-        *switch*
-        (< durtot 1/4)
-        (= elmpos (- (length *chords-and-cont*) 1)))
-       (progn 
-         (setf str (string+ str "]"))
-         (setf *switch* nil)))
-      
-      ((and 
-        (not *switch*)
-        (< durtot 1/4)
-        (< (nth (+ 1 elmpos) *treeratios*) 1/4)
+   (if (= elmpos (- (length *chords-and-cont*) 1))
+
+       (if (and *switch* (< durtot 1/4)) ;;;;this is for the last one 
+           (setf str (string+ str "]")))
+
+    (cond 
+     ((and 
+       (not *switch*)
+       (< durtot 1/4)
+       (< (nth (+ 1 elmpos) *treeratios*) 1/4)
        (not (rest-p (lil-nxt-cont self)))
        (not(last-of-this-group self (parent self))))
        
-       (progn
-         (setf str (string+ str "["))
-         (setf *switch* t)))
+      (progn
+        (setf str (string+ str "["))
+        (setf *switch* t)))
        
       
-      ((and 
-        *switch*
-        (< durtot 1/4)
-        (>= (nth (+ 1 elmpos) *treeratios*) 1/4))
-       (progn
-         (setf str (string+ str "]"))
-         (setf *switch* nil)))
+     ((and 
+       *switch*
+       (< durtot 1/4)
+       (>= (nth (+ 1 elmpos) *treeratios*) 1/4))
+      (progn
+        (setf str (string+ str "]"))
+        (setf *switch* nil)))
 
-      ((and 
-        *switch*
-        (< durtot 1/4)
-        (last-of-this-group self (parent self)))
-       (progn
-         (setf str (string+ str "]"))
-         (setf *switch* nil)))
+     ((and 
+       *switch*
+       (< durtot 1/4)
+       (last-of-this-group self (parent self)))
+      (progn
+        (setf str (string+ str "]"))
+        (setf *switch* nil)))
       
-      ((and 
-        *switch*
-        (< durtot 1/4)
-        (rest-p (lil-nxt-cont self))
-        )
-       (progn
-         (setf str (string+ str "]"))
-         (setf *switch* nil)))
+     ((and 
+       *switch*
+       (< durtot 1/4)
+       (rest-p (lil-nxt-cont self))
+       )
+      (progn
+        (setf str (string+ str "]"))
+        (setf *switch* nil)))
       
-      (t 
-       )))
+     (t 
+      ))))
  
  (if *lily-dyn-on*
      (if (not (equal dyn *tempdyn*))
@@ -712,7 +705,6 @@ rep))
     (list str)
     )
 )
-
 
 
 
