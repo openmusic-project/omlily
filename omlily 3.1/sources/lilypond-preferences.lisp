@@ -120,6 +120,9 @@
 (defvar *lily-dyn-on* nil)
 (setf *lily-dyn-on* t)
 
+(defvar *lily-chan-on* nil)
+;(setf *lily-chan-on* t)
+
 (defvar *lily-paper-size* nil)
 (setf *lily-paper-size* "a4")
 
@@ -139,6 +142,7 @@
     :split-note "6000"
     :comp-mode 0
     :lily-dyn-on t
+    :lily-chan-on nil
     :midioutput nil
     :paper-size "a4"
     :paper-orientation "portrait"
@@ -161,6 +165,7 @@
     (setf *split-note* (get-pref modulepref :split-note))
     (setf *default-comp-mode*     (get-pref modulepref :comp-mode))
     (setf *lily-dyn-on* (get-pref modulepref :lily-dyn-on))
+    (setf *lily-chan-on* (get-pref modulepref :lily-chan-on))
     (setf *midioutput* (get-pref modulepref :midioutput))
     (setf *lily-paper-size* (get-pref modulepref :paper-size))
     (setf *lily-paper-orientation* (get-pref modulepref :paper-orientation))
@@ -177,6 +182,7 @@
                   :split-note ,*split-note*
                   :comp-mode ,*default-comp-mode*
                   :lily-dyn-on ,*lily-dyn-on*
+                  :lily-chan-on ,*lily-chan-on*
                   :midioutput ,*midioutput*
                   :paper-size ,*lily-paper-size*
                   :paper-orientation ,*lily-paper-orientation*
@@ -289,11 +295,20 @@
                      (om-make-dialog-item 'om-static-text (om-make-point (+ 50 165)  i) (om-make-point 120 20) "Export Midi"
                                           :font *controls-font*)
 
-                     (om-make-dialog-item 'om-check-box (om-make-point (+ 165 135)  i) (om-make-point 30 10) ""
+                     (om-make-dialog-item 'om-check-box (om-make-point (+ 165 125)  i) (om-make-point 30 10) ""
                                           :font *controls-font*
                                           :checked-p (get-pref modulepref :midioutput)
                                           :di-action (om-dialog-item-act item 
                                                        (set-pref modulepref :midioutput (om-checked-p item))))
+
+                     (om-make-dialog-item 'om-static-text (om-make-point (+ 50 300)  i) (om-make-point 120 20) "Export Channels"
+                                          :font *controls-font*)
+
+                     (om-make-dialog-item 'om-check-box (om-make-point (+ 165 290)  i) (om-make-point 30 10) ""
+                                          :font *controls-font*
+                                          :checked-p (get-pref modulepref :lily-chan-on)
+                                          :di-action (om-dialog-item-act item 
+                                                       (set-pref modulepref :lily-chan-on (om-checked-p item))))
                      )
 
     (setf posy 0)
