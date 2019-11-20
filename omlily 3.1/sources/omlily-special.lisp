@@ -832,7 +832,7 @@ rep))
 
 
 
-
+;;not needed anymore
 (defun write-lily-file (list path paper layout)
   (let* ((pathname (or path (om-choose-new-file-dialog)))
          (version (lilypond-version));;;inputs the current version of installe dlilypond
