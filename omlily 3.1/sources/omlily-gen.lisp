@@ -713,37 +713,50 @@ rep))
 
 (defmethod cons-lil-expr-extr-simp ((self om::chord) dur)
   (let* ((notes (inside self))
-        (extra (car (mapcar #'extra-obj-list notes)))
-        (text (car (get-extra-text extra)))
-        (velex (if (vel-extra-p (car extra))
+         (extra (car (mapcar #'extra-obj-list notes)))
+         (text (car (get-extra-text extra)))
+         (velex (if (vel-extra-p (car extra))
                     (thechar (car extra))))
-        (durtot (if (listp dur) (car dur) dur))
-        (inside (om::inside self))
-        (vel (car (om::lvel self)))
-        (dyn (get-dyn-from-om vel))
-        (str "")) 
+         (durtot (if (listp dur) (car dur) dur))
+         (inside (om::inside self))
+         (vel (car (om::lvel self)))
+         (dyn (get-dyn-from-om vel))
+         (chans (om::lchan self))
+         (str "")) 
     
     (if (= (length inside) 1)
-      (setf str (cons-lily-note (car inside)))
+        (setf str (cons-lily-note (car inside)))
       (let ((notes ""))
-        (loop for note in inside do (setf notes (string+ notes " " (cons-lily-note note)))) 
+        (if *lily-chan-on*
+            (loop for note in inside 
+                  for ch in chans
+                  do (setf notes 
+                           (string+ notes " " (cons-lily-note note) 
+                                    (format nil "-~D" ch)
+                                    ))) 
+          (loop for note in inside 
+                do (setf notes 
+                         (string+ notes " " (cons-lily-note note))))
+          ) 
         (setf str (string+ "<" notes ">")))
       )
       
-;;;trouver un truc pour les longues notes !!!! (cf. om-lily-spec)      
+    ;;;trouver un truc pour les longues notes !!!! (cf. om-lily-spec)      
 
     (let* ((durconv (get-head-and-points durtot))
            (head (first durconv))
            (points (if (< 0 (second durconv))
-                     (append-str (om::repeat-n "." (second durconv))))))
+                       (append-str (om::repeat-n "." (second durconv))))))
       
       (setf str (string+ str 
                          (if (not points)
-                           (format nil "~d" head)
+                             (format nil "~d" head)
                            (format nil "~d~A" head points)
                            ))))
 
-
+    (if (and (= (length inside) 1) *lily-chan-on*)
+        (setf str (string+ str (format nil "-~D" (car chans))))
+      )
 
     (when (or (and (not (om::cont-chord-p self))
                    (om::cont-chord-p (om::next-container self '(om::chord))))
@@ -753,12 +766,12 @@ rep))
       (setf str (string+ str "~"))
       )
     (if *lily-dyn-on*
-    (if (not (equal dyn *tempdyn*))
-        (progn
-          (setf str (string+ str (format nil " ~d" dyn)))
-          (setf *tempdyn* dyn)))
+        (if (not (equal dyn *tempdyn*))
+            (progn
+              (setf str (string+ str (format nil " ~d" dyn)))
+              (setf *tempdyn* dyn)))
       )
-      ;;;extras  
+    ;;;extras  
     (if velex 
         (setf str (string+ str  (massq velex *vel-for-lil*)))
       )
@@ -786,6 +799,7 @@ rep))
          (inside (om::inside self))
          (vel (car (om::lvel self)))
          (dyn (get-dyn-from-om vel))
+         (chans (om::lchan self))
          (str "")) 
 
     (if (= (length inside) 1)
@@ -802,9 +816,29 @@ rep))
               (setf *clef-switch-b* *clef-switch*))))
         
 
-      (let ((notes ""))
-        (loop for note in inside do (setf notes (string+ notes " " (cons-lily-note note)))) 
-        (setf str (string+ "<" notes ">")))
+      (let* ((notes "")
+             (clef (if (= 0 *clef-switch*) 
+                       (format nil "\\clef \"G\"~%")
+                     (format nil "\\clef \"F\"~%")
+                     )))
+
+        (if *lily-chan-on*
+            (loop for note in inside 
+                  for ch in chans
+                  do (setf notes 
+                           (string+ notes " " (cons-lily-note note) 
+                                    (format nil "-~D" ch)
+                                    ))) 
+          (loop for note in inside 
+                do (setf notes 
+                         (string+ notes " " (cons-lily-note note))))
+          )
+        
+
+        (progn
+          (setf str (string+ clef))
+          (setf str (string+ str "<" notes ">"))
+          (setf *clef-switch-b* *clef-switch*)))
       )
     
     
@@ -819,6 +853,11 @@ rep))
                              (format nil "~d" head)
                            (format nil "~d~A" head points)
                            ))))
+    
+    (if (and (= (length inside) 1) *lily-chan-on*)
+        (setf str (string+ str (format nil "-~D" (car chans))))
+      )
+
     (when (or (and (not (om::cont-chord-p self))
                    (om::cont-chord-p (om::next-container self '(om::chord))))
               (and (om::cont-chord-p self)

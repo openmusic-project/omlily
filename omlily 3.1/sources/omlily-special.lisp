@@ -107,7 +107,7 @@ nil)
 ;(get-dyn-from-om 127)
 
 
-
+#|
 (setf *custom-dyn* 
       (list (list (list 0 31)  "\\ppppp")
             (list (list 32 42)  "\\pppp")
@@ -122,8 +122,19 @@ nil)
             (list (list 108 116)  "\\ffff")
             (list (list 117 120)  "\\fffff")
             (list (list 121 127)  "\\sf")))
+|#
 
-
+;om default settings
+(setf *custom-dyn* 
+      (list (list (list 0 20)  "\\ppp")
+            (list (list 21 40)  "\\pp")
+            (list (list 41 55)  "\\p")
+            (list (list 56 60)  "\\mp")
+            (list (list 61 85)  "\\mf")
+            (list (list 86 100)  "\\f")
+            (list (list 101 115)  "\\ff")
+            (list (list 116 127)  "\\fff")
+            ))
 
 (defmethod get-chan-of-voice ((voice om::voice))
             :initvals '(t ) 
@@ -408,13 +419,24 @@ rep))
          (inside (om::inside self))
          (vel (car (om::lvel self)))
          (dyn (get-dyn-from-om vel))
+         (chans (om::lchan self))
          (str "")
          )
     ;(print (list "chord ratio:" ratio)) 
     (if (= (length inside) 1)
         (setf str (cons-lily-note (car inside)))
       (let ((notes ""))
-        (loop for note in inside do (setf notes (string+ notes " " (cons-lily-note note)))) 
+        (if *lily-chan-on*
+            (loop for note in inside 
+                  for ch in chans
+                  do (setf notes 
+                           (string+ notes " " (cons-lily-note note) 
+                                    (format nil "-~D" ch)
+                                    ))) 
+          (loop for note in inside 
+                do (setf notes 
+                         (string+ notes " " (cons-lily-note note))))
+          ) 
         (setf str (string+ "<" notes ">")))
       )
     
@@ -462,6 +484,10 @@ rep))
       
       )
     
+    (if (and (= (length inside) 1) *lily-chan-on*)
+        (setf str (string+ str (format nil "-~D" (car chans))))
+      )
+
     (when (or (and (not (om::cont-chord-p self))
                    (om::cont-chord-p (om::next-container self '(om::chord))))
               (and (om::cont-chord-p self)
@@ -558,11 +584,12 @@ rep))
          (inside (om::inside self))
          (vel (car (om::lvel self)))
          (dyn (get-dyn-from-om vel))
+         (chans (om::lchan self))
          (str ""))
     
     (if (= (length inside) 1)
         
-        (if (= *clef-switch* *clef-switch-b*)        
+        (if (= *clef-switch* *clef-switch-b*)
             (setf str (cons-lily-note (car inside)))
           (let ((clef (if (= 0 *clef-switch*) 
                           (format nil "\\clef \"G\"~%")
@@ -574,46 +601,66 @@ rep))
               (setf *clef-switch-b* *clef-switch*))))
         
 
-      (let ((notes ""))
-        (loop for note in inside do (setf notes (string+ notes " " (cons-lily-note note)))) 
-        (setf str (string+ "<" notes ">")))
-      )
+      (let* ((notes "")
+             (clef (if (= 0 *clef-switch*) 
+                       (format nil "\\clef \"G\"~%")
+                     (format nil "\\clef \"F\"~%")
+                     )))
+
+        (if *lily-chan-on*
+            (loop for note in inside 
+                  for ch in chans
+                  do (setf notes 
+                           (string+ notes " " (cons-lily-note note) 
+                                    (format nil "-~D" ch)
+                                    ))) 
+          (loop for note in inside 
+                do (setf notes 
+                         (string+ notes " " (cons-lily-note note))))
+          )
+        
+
+        (progn
+          (setf str (string+ clef))
+          (setf str (string+ str "<" notes ">"))
+          (setf *clef-switch-b* *clef-switch*)))
+      )      
 
     
     (if (>= durtot 16)
       
-      (let* ((durconv (get-head-and-points durtot))
-             (head (first durconv))
-             (ratio-ord (if (powerof2? (second ratio))
-                           1
-                           (/ (find-beat-symbol (second ratio)) (second ratio))))
-             (mutl  ;(if (powerof2? (second ratio))
-                           (/ (car durconv) 2))
+        (let* ((durconv (get-head-and-points durtot))
+               (head (first durconv))
+               (ratio-ord (if (powerof2? (second ratio))
+                              1
+                            (/ (find-beat-symbol (second ratio)) (second ratio))))
+               (mutl  ;(if (powerof2? (second ratio))
+                (/ (car durconv) 2))
                           ; (* (/ (car durconv) 2) (/ (find-beat-symbol (second ratio)) (second ratio)))))
              ;(mutlratio (* ratio-ord mutl))
-             (mutlratio mutl);;ICI
-             (points (if (< 0 (second durconv))
-                       (append-str (om::repeat-n "." (second durconv))))))
+               (mutlratio mutl);;ICI
+               (points (if (< 0 (second durconv))
+                           (append-str (om::repeat-n "." (second durconv))))))
 
 ;(print (* (/ (car durconv) 2) (/ (/ (find-beat-symbol (second ratio)) 1) (second ratio))))
         
-        (setf str (proappend-str 
-                   (list (format nil "\\once \\override NoteHead  #'style = #'default~%")
-                   str)))
-        (setf str (string+ str 
-                           (if (not points)
-                             (format nil "\\breve*~d-\\markup {\\finger \"~d\"}" mutlratio (car durconv))
-                             (format nil "\\breve~A*~d-\\markup {\\finger \"~d\"}" points mutlratio (car durconv))
-                             )
-                           )))
+          (setf str (proappend-str 
+                     (list (format nil "\\once \\override NoteHead  #'style = #'default~%")
+                           str)))
+          (setf str (string+ str 
+                             (if (not points)
+                                 (format nil "\\breve*~d-\\markup {\\finger \"~d\"}" mutlratio (car durconv))
+                               (format nil "\\breve~A*~d-\\markup {\\finger \"~d\"}" points mutlratio (car durconv))
+                               )
+                             )))
       
       (let* ((durconv (get-head-and-points durtot))
              (head (first durconv))
              (mutlratio  (if (powerof2? (second ratio))
-                           1
+                             1
                            (/ (find-beat-symbol (second ratio)) (second ratio))))
              (points (if (< 0 (second durconv))
-                       (append-str (om::repeat-n "." (second durconv))))))
+                         (append-str (om::repeat-n "." (second durconv))))))
         
 
         (setf str (string+ str 
@@ -628,6 +675,11 @@ rep))
       
       )
     
+    (if (and (= (length inside) 1) *lily-chan-on*)
+        (setf str (string+ str (format nil "-~D" (car chans))))
+      )
+
+    
     (when (or (and (not (om::cont-chord-p self))
                    (om::cont-chord-p (om::next-container self '(om::chord))))
               (and (om::cont-chord-p self)
@@ -636,61 +688,61 @@ rep))
       (setf str (string+ str "~"))
       )
     
- ;;;; FOR STEMING
- ;;;;
- (let ((elmpos (car (element-position self *chords-and-cont*))))
-   (if (= elmpos (- (length *chords-and-cont*) 1))
+    ;;;; FOR STEMING
+    ;;;;
+    (let ((elmpos (car (element-position self *chords-and-cont*))))
+      (if (= elmpos (- (length *chords-and-cont*) 1))
 
-       (if (and *switch* (< durtot 1/4)) ;;;;this is for the last one 
-           (setf str (string+ str "]")))
+          (if (and *switch* (< durtot 1/4)) ;;;;this is for the last one 
+              (setf str (string+ str "]")))
 
-    (cond 
-     ((and 
-       (not *switch*)
-       (< durtot 1/4)
-       (< (nth (+ 1 elmpos) *treeratios*) 1/4)
-       (not (rest-p (lil-nxt-cont self)))
-       (not(last-of-this-group self (parent self))))
+        (cond 
+         ((and 
+           (not *switch*)
+           (< durtot 1/4)
+           (< (nth (+ 1 elmpos) *treeratios*) 1/4)
+           (not (rest-p (lil-nxt-cont self)))
+           (not(last-of-this-group self (parent self))))
        
-      (progn
-        (setf str (string+ str "["))
-        (setf *switch* t)))
+          (progn
+            (setf str (string+ str "["))
+            (setf *switch* t)))
        
       
-     ((and 
-       *switch*
-       (< durtot 1/4)
-       (>= (nth (+ 1 elmpos) *treeratios*) 1/4))
-      (progn
-        (setf str (string+ str "]"))
-        (setf *switch* nil)))
+         ((and 
+           *switch*
+           (< durtot 1/4)
+           (>= (nth (+ 1 elmpos) *treeratios*) 1/4))
+          (progn
+            (setf str (string+ str "]"))
+            (setf *switch* nil)))
 
-     ((and 
-       *switch*
-       (< durtot 1/4)
-       (last-of-this-group self (parent self)))
-      (progn
-        (setf str (string+ str "]"))
-        (setf *switch* nil)))
+         ((and 
+           *switch*
+           (< durtot 1/4)
+           (last-of-this-group self (parent self)))
+          (progn
+            (setf str (string+ str "]"))
+            (setf *switch* nil)))
       
-     ((and 
-       *switch*
-       (< durtot 1/4)
-       (rest-p (lil-nxt-cont self))
-       )
-      (progn
-        (setf str (string+ str "]"))
-        (setf *switch* nil)))
+         ((and 
+           *switch*
+           (< durtot 1/4)
+           (rest-p (lil-nxt-cont self))
+           )
+          (progn
+            (setf str (string+ str "]"))
+            (setf *switch* nil)))
       
-     (t 
-      ))))
+         (t 
+          ))))
  
- (if *lily-dyn-on*
-     (if (not (equal dyn *tempdyn*))
-         (progn
-           (setf str (string+ str (format nil " ~d" dyn)))
-           (setf *tempdyn* dyn)))
-   )
+    (if *lily-dyn-on*
+        (if (not (equal dyn *tempdyn*))
+            (progn
+              (setf str (string+ str (format nil " ~d" dyn)))
+              (setf *tempdyn* dyn)))
+      )
 
     ;;;extras
     (if velex 
@@ -704,7 +756,7 @@ rep))
 
     (list str)
     )
-)
+  )
 
 
 
@@ -755,16 +807,19 @@ rep))
     
     ))
 
+;(string+ (car (mc->lilynotes '(6000))) "-5"))
+
+;(string+ (car (mc->lilynotes '(6000))) (format nil "-~D" 5))
 
 
 
 (setf *cautionnary* t)
 
+
 (defmethod cons-lily-note ((self om::note))
   (if (and *cautionnary* (not (cont-chord-p (parent self))))
   (car (mc->lilynotes-nat (list (midic self))))  
   (car (mc->lilynotes (list (midic self))))))
-
 
 
 ;;;;;;;;;;;;;;;;;;;;i/o and interface
@@ -817,50 +872,6 @@ rep))
 
 ;;run-lilypond
 ;;in imlily-gen.lisp
-
-
-
-#|
-;;not needed anymore
-;;;TO BE REMOVED
-(defmethod! om->lily-tempo-ex ((self poly) &optional 
-                               (clef nil)
-                               (switch nil)
-                               (paper "a3landmarg")
-                               (layout "template1")
-                               (path nil))
-            :icon 161
-            :indoc '("self" "clef" "switch" "paper" "layout" "path" )
-            :initvals '(t ("G") nil "a3landmarg" "template1" t)
-            :menuins '((2 (("A3 Landscape" "a3landmarg" )
-                           ))
-                       (3 (("template" "template1")
-                           )))
-            :doc "Exports voice, poly, with polytempi into lilypond format. [Experimental]"
-            (let* ((ressource-folder (lib-resources-folder (find-library "omlily")))
-                   (paperfile (merge-pathnames (string+ "lily-templates/sizes/" paper ".ly") ressource-folder))
-                   (layoutfile (merge-pathnames (string+ "lily-templates/layouts/" layout ".ly") ressource-folder))
-                   (pathname (or path (om-choose-new-file-dialog)))
-                   (lilyfile (write-lil-file (cons-lily-tempo-ex-expr self clef nil switch) pathname paperfile layoutfile)))
-              (run-lilypond lilyfile)))
-
-
-(defmethod! om->lily-tempo-ex ((self voice) &optional
-                               (clef nil)
-                               (switch nil)
-                               (paper "a3landmarg")
-                               (layout "template1")
-                               (path nil))
-            (let* ((ressource-folder (lib-resources-folder (find-library "omlily")))
-                   (paperfile (merge-pathnames (string+ "lily-templates/sizes/" paper ".ly") ressource-folder))
-                   (layoutfile (merge-pathnames (string+ "lily-templates/layouts/" layout ".ly") ressource-folder))
-                   (pathname (or path (om-choose-new-file-dialog)))
-                   (lilyfile (write-lil-file 
-                              (cons-lily-tempo-ex-expr (make-instance 'poly
-                                                                      :voices self) clef nil switch) pathname paperfile layoutfile)))
-              (run-lilypond lilyfile)))
-|#
-;;;;;;;;
 
 
 
