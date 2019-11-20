@@ -129,6 +129,9 @@
 (defvar *lily-paper-orientation* nil)
 (setf *lily-paper-orientation* "landscape")
 
+(defvar *lily-staff-size* nil)
+(setf *lily-staff-size* 18)
+
 (defvar *midioutput* nil)
 
 
@@ -146,6 +149,7 @@
     :midioutput nil
     :paper-size "a4"
     :paper-orientation "portrait"
+    :staff-size 18
     :paper-other (merge-pathnames (string+ "lily-templates/paper/" "paper" ".ly") (lib-resources-folder (find-library "omlily"))) 
     :layout-file (merge-pathnames (string+ "lily-templates/layouts/" "template" ".ly") (lib-resources-folder (find-library "omlily")))
     ))
@@ -169,6 +173,7 @@
     (setf *midioutput* (get-pref modulepref :midioutput))
     (setf *lily-paper-size* (get-pref modulepref :paper-size))
     (setf *lily-paper-orientation* (get-pref modulepref :paper-orientation))
+    (setf *lily-staff-size* (get-pref modulepref :staff-size))
     (setf *lily-paper-other* (get-pref modulepref :paper-other))
     (setf *lily-layout-file* (get-pref modulepref :layout-file))
     ))
@@ -186,6 +191,7 @@
                   :midioutput ,*midioutput*
                   :paper-size ,*lily-paper-size*
                   :paper-orientation ,*lily-paper-orientation*
+                  :staff-size ,*lily-staff-size*
                   :paper-other ,(om-save-pathname *lily-paper-other*)
                   :layout-file ,(om-save-pathname *lily-layout-file*)
                   ) *om-version*))
@@ -329,6 +335,16 @@
                                                          (set-pref modulepref :paper-size
                                                                    (if (string-equal choice "a4") "a4" "a3"))))
 					  :font *controls-font*)
+
+
+                     (om-make-dialog-item 'om-static-text (om-make-point (+ l2 200) posy) (om-make-point 80 22) "Staff Size"
+                                          :font *controls-font*)
+
+                     (om-make-dialog-item 'om-editable-text (om-make-point (+ l2 280) posy)  (om-make-point 80 22)
+                                          (format nil "~D" (get-pref modulepref :staff-size))
+                                          :modify-action (om-dialog-item-act item (set-pref modulepref :staff-size (om-dialog-item-text item)))
+                                          :font *om-default-font2*)
+
 
                      (om-make-dialog-item 'om-static-text (om-make-point l2 (incf posy dy)) (om-make-point 80 22) "Orientation"
                                           :font *controls-font*)

@@ -931,6 +931,7 @@ rep))
         (format out "\\version \"2.18\"~%~%"))
       ;;;;page sizes
       (format out "#(set-default-paper-size \"~D~D\")~%" *lily-paper-size* *lily-paper-orientation*)
+      (format out "#(set-global-staff-size ~D)~%" *lily-staff-size*)
       (WITH-OPEN-FILE (in paper :direction :input)
         (loop 
          while (not (file-eof-p in))
