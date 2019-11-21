@@ -426,7 +426,7 @@ rep))
     (if (= (length inside) 1)
         (setf str (cons-lily-note (car inside)))
       (let ((notes ""))
-        (if *lily-chan-on*
+        (if (and *lily-chan-on* (not (om::cont-chord-p self)))
             (loop for note in inside 
                   for ch in chans
                   do (setf notes 
@@ -484,7 +484,7 @@ rep))
       
       )
     
-    (if (and (= (length inside) 1) *lily-chan-on*)
+    (if (and (= (length inside) 1) *lily-chan-on* (not (om::cont-chord-p self)))
         (setf str (string+ str (format nil "-~D" (car chans))))
       )
 
@@ -607,7 +607,7 @@ rep))
                      (format nil "\\clef \"F\"~%")
                      )))
 
-        (if *lily-chan-on*
+        (if (and *lily-chan-on* (not (om::cont-chord-p self)))
             (loop for note in inside 
                   for ch in chans
                   do (setf notes 
@@ -675,7 +675,7 @@ rep))
       
       )
     
-    (if (and (= (length inside) 1) *lily-chan-on*)
+    (if (and (= (length inside) 1) *lily-chan-on* (not (om::cont-chord-p self)))
         (setf str (string+ str (format nil "-~D" (car chans))))
       )
 
