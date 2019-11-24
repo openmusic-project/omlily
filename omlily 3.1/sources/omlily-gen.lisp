@@ -965,38 +965,6 @@ rep))
     pathname))
 
 
-(defun run-lilypond (path)
-  (let* ((lily-path (pathname-name *LILYPOND-PATH*))
-         (pdf-path (pathname-name *PDF-READER-PATH*))
-         (folder (pathname-directory path))
-         (folderpath (make-pathname :directory folder))
-         (outfile (make-pathname :directory folder :name (pathname-name path)))
-         (pdffile (make-pathname :directory folder :name (pathname-name path) :type "pdf")))
-    (print lily-path)
-
-    (cond
-     ((equal *om-os* :linux)
-      (progn
-        (om-cmd-line (format nil "cd ~s; sh -c '~s ~s'" 
-                             (om-path2cmdpath folderpath) 
-                             lily-path
-                             (om-path2cmdpath path)))
-        (om-cmd-line (format nil "~s ~s &" pdf-path (om-path2cmdpath  pdffile)))
-        pdffile))
-
-     ((equal *om-os* :mac)
-      (progn
-        (om-cmd-line (format nil "cd ~s; bash -l -c '~s ~s'" 
-                             (om-path2cmdpath folderpath) 
-                             lily-path
-                             (om-path2cmdpath path)))
-         
-        (om-cmd-line (format nil "open ~s" (om-path2cmdpath  pdffile)))
-        pdffile))
-     (t outfile))))
-
-
-
 ;---------------------get-D------------------------
 
 
