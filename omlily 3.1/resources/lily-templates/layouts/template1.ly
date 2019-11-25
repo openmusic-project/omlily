@@ -72,8 +72,8 @@ indent = 0.0
          }
 \context {\Staff
 
-	  \override TupletNumber.font-size= #0
-	  \override TupletNumber.font-name=#"Nepomuk Bold Italic" 
+	  %\override TupletNumber.font-size= #0
+	  %\override TupletNumber.font-name=#"Nepomuk Bold Italic" 
           \override VerticalAxisGroup #'minimum-Y-extent = #'(-8 . 8)
           \override TimeSignature #'style = #'()
           \override NoteHead #'style = #'baroque
