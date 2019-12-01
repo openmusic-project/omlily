@@ -7,9 +7,6 @@
 ;;                     
 ;;
 ;;
-;;                           $Revision: 2.5 $
-;;                      $Date: 2015/22/16 13:08:12 $
-;;
 ;;
 ;This program is free software; you can redistribute it and/or 
 ;modify it under the terms of the GNU General Public License
@@ -81,6 +78,7 @@ It has two modes for generating the score according to the nature of the polypho
    -Polymetric : for special cases where music is polymetric and polytempic music
 
 
+
 LILY->OM
 
 In order to import *.ly files into OpenMusic objects (POLY), you will have to :
@@ -145,8 +143,11 @@ The preference panel under the Lilypond tab :
 
 	-Export Dynamics  : if checked, all dynamics will be exported without repetition.
 	-Export Midi	  : if checked, will compile also a midi file.
-
+	-Export Channels
+	
 -Paper Size	: sets the paper size a4/a3.
+
+-Staff Size	: sets the global staff size.
 
 -Orientation	: sets portait/landscape.
 
