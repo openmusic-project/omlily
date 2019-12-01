@@ -29,11 +29,14 @@
 (defmethod get-external-def-vals ((module (eql 'lilypond)))
     (cond
      ((equal *om-os* :linux) 
-      (list :lilypond-path (pathname (find-lilypond)))
+      (list :lilypond-path (pathname (find-lilypond))) 
       )
      ((equal *om-os* :mac) 
       (list :lilypond-path (pathname (find-lilypond))
                )) 
+     ((equal *om-os* :win) 
+      (list :lilypond-path (pathname (find-lilypond))
+            ))
      (t (list :lilypond-path (pathname "~/bin/lilypond")))))
 
 

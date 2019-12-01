@@ -5,16 +5,19 @@
   "outputs lilypond binary unix path"
   (multiple-value-bind (out pid)
       #+linux(sys:run-shell-command "sh -c 'which lilypond'"
-                             :wait nil
-                             :output :stream
-                             :error-output nil)
-      #+macosx(sys:run-shell-command "bash -l -c 'which lilypond'"
-                             :wait nil
-                             :output :stream
-                             :error-output nil)
+                                    :wait nil
+                                    :output :stream
+                                    :error-output nil)
+    #+macosx(sys:run-shell-command "bash -l -c 'which lilypond'"
+                                   :wait nil
+                                   :output :stream
+                                   :error-output nil)
+    #+win32(sys:run-shell-command "where Lilypond.exe"
+                                   :wait nil
+                                   :output :stream
+                                   :error-output nil)
     (with-open-stream (out out)
       (values (read-line out) ))))
-
 
 
 (defun lilypond? ()
@@ -33,7 +36,9 @@
 (defun find-lilypond ()
   "outputs lilypond binary unix path"
  #+linux(find-lilypond-path)
- #+macosx(lilypond?))
+ #+macosx(lilypond?)
+ #+win32(find-lilypond-path)
+)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -54,6 +59,11 @@
                              :wait nil
                              :output :stream
                              :error-output nil)
+      #+win32(sys:run-shell-command "lilypond -v"
+                                    :wait nil
+                                    :output :stream
+                                    :error-output nil
+                                    )
     (with-open-stream (out out)
       (values (read-line out) ))))
 
@@ -62,7 +72,8 @@
   (let ((test (sys:run-shell-command "bash -l -c 'lilypond -v'")))
     (if (= 127 test)
         nil
-      (string-from-space2 (find-lilypond-version)))))
+      (string-from-space2 (find-lilypond-version))))
+  )
 
 ;;from om string-from-space function
 
@@ -76,5 +87,6 @@
 (defun lilypond-version ()
 "returns the lilypond version installed"
  #+linux(string-from-space2 (find-lilypond-version))
- #+macosx(lilypond-version?))
+ #+macosx(lilypond-version?)
+ #+win32 (string-from-space2 (find-lilypond-version)))
 

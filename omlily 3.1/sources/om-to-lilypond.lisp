@@ -1,5 +1,6 @@
 (in-package :om)
 
+
 (defun run-lilypond (path &optional mode)
   (let* ((lily-path (pathname-name *LILYPOND-PATH*))
          (pdf-path (pathname-name *PDF-READER-PATH*))
@@ -7,8 +8,8 @@
          (folderpath (make-pathname :directory folder))
          (outfile (make-pathname :directory folder :name (pathname-name path)))
          (pdffile (make-pathname :directory folder :name (pathname-name path) :type "pdf")))
+   ; (print (list (namestring folderpath) (om-path2cmdpath folderpath)))
     (print lily-path)
-
     (cond
      ((equal *om-os* :linux)
       (if mode
@@ -42,6 +43,24 @@
              pdffile)
          
          ))
+     
+     ((equal *om-os* :win)
+      (if mode
+          (sys:call-system (format nil "chdir ~A & lilypond ~A"
+                                   (namestring folderpath)
+                               ;(om-path2cmdpath *LILYPOND-PATH*);doesn't work
+                                   (om-path2cmdpath path)))
+        (progn
+          (sys:call-system (format nil "chdir ~A & lilypond ~A"
+                                   (namestring folderpath)
+                               ;(om-path2cmdpath *LILYPOND-PATH*);doesn't work
+                                   (om-path2cmdpath path)))
+          (sys:call-system (format nil "~A" (om-path2cmdpath  pdffile)))
+          pdffile
+          )
+          
+        ))
+      
      (t outfile))))
 
 
