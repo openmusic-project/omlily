@@ -1,4 +1,4 @@
-# omlily3
+# omlily
 An OpenMusic communication interface library with Lilypond.
 
 INTRODUCTION
