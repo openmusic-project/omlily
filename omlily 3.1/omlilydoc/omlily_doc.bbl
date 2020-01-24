@@ -1,0 +1,21 @@
+\begin{thebibliography}{1}
+
+\bibitem{bresson2011openmusic}
+Jean Bresson, Carlos Agon, and G{\'e}rard Assayag.
+\newblock Openmusic--visual programming environment for music composition,
+  analysis and research.
+\newblock 2011.
+
+\bibitem{haddad2016omlily}
+Karim Haddad and Carlos Agon.
+\newblock Omlily: filling the notational gap between composition and
+  performance.
+\newblock 2016.
+
+\bibitem{nienhuys2003lilypond}
+Han-Wen Nienhuys and Jan Nieuwenhuizen.
+\newblock Lilypond, a system for automated music engraving.
+\newblock In {\em Proceedings of the XIV Colloquium on Musical Informatics (XIV
+  CIM 2003)}, volume~1, pages 167--171, 2003.
+
+\end{thebibliography}
