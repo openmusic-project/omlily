@@ -645,7 +645,6 @@ rep))
          (inside (om::inside self))
          (sympli (/ num denom))
          (rep nil) (val nil))
-    ;(print durtot)
     (cond
      ((not (om::get-group-ratio self)) 
       (loop for obj in inside
@@ -664,8 +663,14 @@ rep))
      (t
       (let ((pos (length rep))
             (depth 0))
-        (setf rep (append rep (list (format nil "\\override TupletBracket #'padding = #"))))
-        (setf rep (append rep (list (format nil "\\tuplet ~d/~d {" num denom))))
+        (setf rep (append rep (list (format nil "~%")))) ;;;a la place de ce qui suit
+        ;(setf rep (append rep (list (format nil "\\once \\override TupletBracket #'padding = #"))))
+        (let* ((corratio (reduce-num-den (list num denom)))
+               (numer (car corratio))
+               (den (second corratio)))
+
+          (setf rep (append rep (list (format nil "\\tuplet ~d/~d {"  numer den))))
+          )
         (loop for obj in inside do
               (setf rep (append rep (let* ((operation (/ (/ (om::extent obj) (om::qvalue obj)) 
                                                          (/ (om::extent self) (om::qvalue self))))
@@ -682,11 +687,13 @@ rep))
         (setf val (+ depth 1))
         (if (= depth 0)
           (setf (nth pos rep) "")
-          (setf (nth pos rep) (string+ (nth pos rep) (format nil "~D" (float (* 3 depth)))))
+          (setf (nth pos rep) "");;;a la place de ce qui suit
+          ;(setf (nth pos rep) (string+ (nth pos rep) (format nil "2")))
           )
         (setf rep (append rep (list "}")))
         )
-      ))
+      )
+)
     (values rep val)))
 
 
@@ -742,17 +749,37 @@ rep))
       )
       
     ;;;trouver un truc pour les longues notes !!!! (cf. om-lily-spec)      
-
-    (let* ((durconv (get-head-and-points durtot))
-           (head (first durconv))
-           (points (if (< 0 (second durconv))
-                       (append-str (om::repeat-n "." (second durconv))))))
+    (if (>= durtot 16)
       
-      (setf str (string+ str 
-                         (if (not points)
-                             (format nil "~d" head)
-                           (format nil "~d~A" head points)
-                           ))))
+        (let* ((durconv (get-head-and-points durtot))
+               (head (first durconv))
+               (mutl (/ (car durconv) 2))
+               (mutlratio mutl)
+               (points (if (< 0 (second durconv))
+                           (append-str (om::repeat-n "." (second durconv))))))
+          
+          (setf str (proappend-str 
+                     (list (format nil "\\once \\override NoteHead  #'style = #'default~%")
+                           str)))
+          (setf str (string+ str 
+                             (if (not points)
+                                 (format nil "\\breve*~d-\\markup {\\finger \"~d\"}" mutlratio (car durconv))
+                               (format nil "\\breve~A*~d-\\markup {\\finger \"~d\"}" points mutlratio (car durconv))
+                               )
+                             )))
+
+      (let* ((durconv (get-head-and-points durtot))
+             (head (first durconv))
+             (points (if (< 0 (second durconv))
+                         (append-str (om::repeat-n "." (second durconv))))))
+      
+        (setf str (string+ str 
+                           (if (not points)
+                               (format nil "~d" head)
+                             (format nil "~d~A" head points)
+                             ))))
+      )
+
 
     (if (and (= (length inside) 1) *lily-chan-on* (not (om::cont-chord-p self)))
         (setf str (string+ str (format nil "-~D" (car chans))))
@@ -842,7 +869,25 @@ rep))
       )
     
     
-
+    (if (>= durtot 16)
+      
+        (let* ((durconv (get-head-and-points durtot))
+               (head (first durconv))
+               (mutl (/ (car durconv) 2))
+               (mutlratio mutl)
+               (points (if (< 0 (second durconv))
+                           (append-str (om::repeat-n "." (second durconv))))))
+          
+          (setf str (proappend-str 
+                     (list (format nil "\\once \\override NoteHead  #'style = #'default~%")
+                           str)))
+          (setf str (string+ str 
+                             (if (not points)
+                                 (format nil "\\breve*~d-\\markup {\\finger \"~d\"}" mutlratio (car durconv))
+                               (format nil "\\breve~A*~d-\\markup {\\finger \"~d\"}" points mutlratio (car durconv))
+                               )
+                             )))
+        
     (let* ((durconv (get-head-and-points durtot))
            (head (first durconv))
            (points (if (< 0 (second durconv))
@@ -853,7 +898,7 @@ rep))
                              (format nil "~d" head)
                            (format nil "~d~A" head points)
                            ))))
-    
+    )
     (if (and (= (length inside) 1) *lily-chan-on* (not (om::cont-chord-p self)))
         (setf str (string+ str (format nil "-~D" (car chans))))
       )
