@@ -995,7 +995,7 @@ rep))
             (format out "~A~%" elt))
 
       (if *midioutput*
-            (format out "\\midi {}")
+            (format out "\\midi {}~%~%")
         )
          
       ;;;;layout templates
