@@ -8,60 +8,53 @@
          (folderpath (make-pathname :directory folder))
          (outfile (make-pathname :directory folder :name (pathname-name path)))
          (pdffile (make-pathname :directory folder :name (pathname-name path) :type "pdf")))
-   ; (print (list (namestring folderpath) (om-path2cmdpath folderpath)))
-    (print lily-path)
-    (cond
-     ((equal *om-os* :linux)
-      (if mode
-          (om-cmd-line (format nil "cd ~s; sh -c '~s ~s'" 
-                             (om-path2cmdpath folderpath) 
-                             lily-path
-                             (om-path2cmdpath path)))
-          (progn
-            (om-cmd-line (format nil "cd ~s; sh -c '~s ~s'" 
-                                 (om-path2cmdpath folderpath) 
-                                 lily-path
-                                 (om-path2cmdpath path)))
-            (om-cmd-line (format nil "~s ~s &" pdf-path (om-path2cmdpath  pdffile)))
-            pdffile
-            )
-          ))
 
-     ((equal *om-os* :mac)
-       (if mode
-           (om-cmd-line (format nil "cd ~s; bash -l -c '~s ~s'" 
-                                  (om-path2cmdpath folderpath) 
-                                  lily-path
-                                  (om-path2cmdpath path)))
-           (progn
-             (om-cmd-line (format nil "cd ~s; bash -l -c '~s ~s'" 
-                                  (om-path2cmdpath folderpath) 
-                                  lily-path
-                                  (om-path2cmdpath path)))
+    #+linux(if mode
+               (om-cmd-line (format nil "cd ~s; sh -c '~s ~s'" 
+                                    (om-path2cmdpath folderpath) 
+                                    lily-path
+                                    (om-path2cmdpath path)))
          
-             (om-cmd-line (format nil "open ~s" (om-path2cmdpath  pdffile)))
-             pdffile)
+             (progn
+               (om-cmd-line (format nil "cd ~s; sh -c '~s ~s'" 
+                                    (om-path2cmdpath folderpath) 
+                                    lily-path
+                                    (om-path2cmdpath path)))
+               (sys:run-shell-command 
+                (format nil "~s ~s " pdf-path (om-path2cmdpath  pdffile))
+                :wait nil
+                :output :stream
+                :error-output nil)
+               pdffile))
+    
+
+    #+macosx(if mode
+                (om-cmd-line (format nil "cd ~s; bash -l -c '~s ~s'" 
+                                     (om-path2cmdpath folderpath) 
+                                     lily-path
+                                     (om-path2cmdpath path)))
+              (progn
+                (om-cmd-line (format nil "cd ~s; bash -l -c '~s ~s'" 
+                                     (om-path2cmdpath folderpath) 
+                                     lily-path
+                                     (om-path2cmdpath path)))
          
-         ))
-     
-     ((equal *om-os* :win)
-      (if mode
-          (sys:call-system (format nil "chdir ~A & lilypond ~A"
-                                   (namestring folderpath)
+                (om-cmd-line (format nil "open ~s" (om-path2cmdpath  pdffile)))
+                pdffile))
+    
+    #+win32(if mode
+               (sys:call-system (format nil "chdir ~A & lilypond ~A"
+                                        (namestring folderpath)
                                ;(om-path2cmdpath *LILYPOND-PATH*);doesn't work
-                                   (om-path2cmdpath path)))
-        (progn
-          (sys:call-system (format nil "chdir ~A & lilypond ~A"
-                                   (namestring folderpath)
+                                        (om-path2cmdpath path)))
+             (progn
+               (sys:call-system (format nil "chdir ~A & lilypond ~A"
+                                        (namestring folderpath)
                                ;(om-path2cmdpath *LILYPOND-PATH*);doesn't work
-                                   (om-path2cmdpath path)))
-          (sys:call-system (format nil "~A" (om-path2cmdpath  pdffile)))
-          pdffile
-          )
-          
-        ))
-      
-     (t outfile))))
+                                        (om-path2cmdpath path)))
+               (sys:call-system (format nil "~A" (om-path2cmdpath  pdffile)))
+               pdffile))
+    ))
 
 
 (defmethod! om->lily ((self poly) 
