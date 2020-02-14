@@ -832,48 +832,4 @@ rep))
 
 
 
-;;not needed anymore
-(defun write-lily-file (list path paper layout)
-  (let* ((pathname (or path (om-choose-new-file-dialog)))
-         (version (lilypond-version));;;inputs the current version of installe dlilypond
-         )
-    (setf *voice-num* 0)
-    (setf *mesure-num* 0)
-    (WITH-OPEN-FILE (out pathname :direction :output  :if-does-not-exist :create :if-exists :supersede)
-      ;;;HERE COMES THE HEADER and GENERAL SETTINGS
-         (if version
-          (format out "\\version \"~A\"~%~%" version )
-        (format out "\\version \"2.18\"~%~%"))
-      
-      ;;;;page sizes
-      (WITH-OPEN-FILE (in paper :direction :input)
-        (loop 
-         while (not (file-eof-p in))
-         do (let ((line (read-line in)))
-              (write-line  line out))))
-      ;;;;The music
-
-      (loop for elt in list do
-            (format out "~A~%" elt))
-
-      
-      ;;;;layout templates
-      (WITH-OPEN-FILE (in layout :direction :input)
-        (loop 
-         while (not (file-eof-p in))
-         do (let ((line (read-line in)))
-              (write-line  line out))))
-      (format out "}~%~%~%")
-      )
-    pathname))
-
-
-
-
-;;run-lilypond
-;;in imlily-gen.lisp
-
-
-
-
 
