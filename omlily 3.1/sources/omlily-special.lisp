@@ -758,54 +758,56 @@ rep))
     )
   )
 
-
-
 (defmethod cons-lily-tempo-ex-expr ((self om::rest) dur ratio switch)
-  
   (let* ((durtot (if (listp dur) (car dur) dur))
          (durconv (get-head-and-points durtot))
          (head (first durconv))
          (points (if (< 0 (second durconv))
-                   (append-str (om::repeat-n "." (second durconv)))))
+                     (append-str (om::repeat-n "." (second durconv)))))
          (str ""))
-    
-    
     (prog1
-      (if (>= durtot 16)
+        (if (>= durtot 16)
         
-        (let ((mutlratio  
-               (if (powerof2? (second ratio))
-                 (/ (car durconv) 2)
-                 (* (/ (car durconv) 2) 
-                    (/ (find-beat-symbol (second ratio)) (second ratio))))))
-          
-          
-          (if (not points)
-            (setf str (string+ str  (format nil "r\\breve*~d-\\markup {\\finger \"~d\"}"  mutlratio (car durconv))))
-            (setf str (string+ str  (format nil "r\\breve~A*~d-\\markup {\\finger \"~d\"}" points mutlratio (car durconv))))
-            ))
-        
-        
-        
-        
-        (let ((mutlratio  (if (powerof2? (second ratio))
-                              1
-                            (/ (find-beat-symbol (second ratio)) (second ratio)))))
-          
-          (if (not points)
-              (setf str (string+ str  (format nil "r~d" head)))
-            (setf str (string+ str  (format nil "r~d~A" head points)))
+            (let* ((durconv (get-head-and-points durtot))
+                   (head (first durconv))
+                   (ratio-ord (if (powerof2? (second ratio))
+                                  1
+                                (/ (find-beat-symbol (second ratio)) (second ratio))))
+                   (mutl 
+                    (/ (car durconv) 2))
+                   (mutlratio mutl)
+                   (points (if (< 0 (second durconv))
+                               (append-str (om::repeat-n "." (second durconv))))))
+
+              (setf str (string+ str 
+                                 (if (not points)
+                                     (format nil "r\\breve*~d-\\markup {\\finger \"~d\"}" mutlratio (car durconv))
+                                   (format nil "r\\breve~A*~d-\\markup {\\finger \"~d\"}" points mutlratio (car durconv))
+                                   )
+                                 )))
+          (if (stringp head)
+              (if (not points)
+                  (setf str (string+ str  (format nil "r~d" head)))
+                (setf str (string+ str  (format nil "r~d~A" head points)))
+                )
+            ;;;added this section when rests are >= 256
+            ;;;these are not available in lilypond <= 2.20
+            (cond
+             ((and (>= head 256) points)
+              (setf str (string+ str  (format nil "r~D~A*1/~D" 128 points (/ head 128)))))
+             ((and (>= head 256) (not points))
+              (setf str (string+ str  (format nil "r~D*1/~D" 128 (/ head 128)))))
+             ((and (< head 256) points)
+              (setf str (string+ str  (format nil "r~d~A" head points))))
+             ((and (< head 256) (not points))
+              (setf str (string+ str  (format nil "r~d" head))))
+             (t ))
             )
           )
-        )
-      
-
- ;;;; FOR STEMING
- ;;;;---removed--
- )
- (list str)
-    
+      )
+    (list str)
     ))
+
 
 ;(string+ (car (mc->lilynotes '(6000))) "-5"))
 
