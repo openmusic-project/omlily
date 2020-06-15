@@ -517,9 +517,10 @@ remaining cent value (i.e., midi-cent 8176 would be expressed as Bb4-24)."
 
       (setf rep (append rep (list (format nil "\\score { ~% { ~%~%"))))
       (setf rep (append rep (list (format nil "<<"))))
-      (setf rep (append rep (list (format nil "\\new StaffGroup~% << ~%~%"))))
       (setf rep (append rep (list (format nil "~%\% \#(with-output-to-file \"temp.lisp\"" ))))
       (setf rep (append rep (list (format nil "\% (lambda () #{ \\displayMusic { ~%"))))
+      (setf rep (append rep (list (format nil "\\new StaffGroup~% << ~%~%"))))      
+
 
 
     (setf *voice-num* 0)
@@ -533,8 +534,9 @@ remaining cent value (i.e., midi-cent 8176 would be expressed as Bb4-24)."
           (setf rep (append rep (list "}")))
 ))
 
+(setf rep (append rep (list (format nil " >> ~%"))))
 (setf rep (append rep (list (format nil "~%~% \% } #}))~%~%"))))
-(setf rep (append rep (list (format nil " >> ~% >>"))))
+(setf rep (append rep (list (format nil " >> ~%"))))
 (setf rep (append rep (list (format nil "~%} ~% ~%"))))
 
 rep))
