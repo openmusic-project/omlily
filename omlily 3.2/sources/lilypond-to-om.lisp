@@ -76,40 +76,14 @@
 
 
 
-;;;;;;;;;;;
-
-
-(defmethod make-music ((type (eql 'NoteEvent)) &rest other-args)
-  (if *lil-imp-pitch*
-      (let* ((art (car (find-value-in-lily-args other-args 'articulations)))
-             (tie (if (equal 'tieevent art) 1 0))
-             (durs (find-value-in-lily-args other-args 'duration))
-             (fig (car durs))
-             (dot (second durs))
-             (fact (third durs))
-             )
-        (make-instance 'lily-dur
-                           :figure fig
-                           :dot dot
-                           :fact fact
-                           :tieevent tie
-                           :restevent 0
-                           )
-        )
-    (if (not (member 'tieevent (flat (find-value-in-lily-args other-args 'articulations))))
-        (remove nil (list (find-value-in-lily-args other-args 'pitch)))
-      
-      )))
-
-
-
-
 
 ;;;;;;Articuation
 
 (defmethod make-music ((type (eql 'articulations)) &rest other-args)
-(list type (find-value-in-lily-args other-args 'tieevent)))
-
+(list
+(list type (find-value-in-lily-args other-args 'tieevent))
+(list type (find-value-in-lily-args other-args 'absolutedynamicevent))
+))
 
 
 ;;;;;;TieEvent
@@ -118,7 +92,12 @@
 
 ;;;;;;AbsoluteDynamicEvent
 
-(defmethod make-music ((type (eql 'AbsoluteDynamicEvent)) &rest other-args))
+;(defmethod make-music ((type (eql 'AbsoluteDynamicEvent)) &rest other-args))
+
+(defmethod make-music ((type (eql 'AbsoluteDynamicEvent)) &rest other-args)
+(list type (find-value-in-lily-args other-args 'text)))
+
+
 
 
 ;;;;;;;;;;;;;;;;Lily Functions to be retreived ;;;;;;;;;;;;;;;;;;;;;;
@@ -138,6 +117,7 @@
          (dot (second durs))
          (fact (third durs))
          )
+    (if *lil-imp-pitch*
     (make-instance 'lily-dur
                    :figure fig
                    :dot dot
@@ -145,7 +125,7 @@
                    :tieevent 0
                    :restevent 1
                    )
-    
+    )
         ))
 
 
@@ -155,6 +135,7 @@
          (dot (second durs))
          (fact (third durs))
          )
+    (if *lil-imp-pitch*
     (make-instance 'lily-dur
                    :figure fig
                    :dot dot
@@ -162,7 +143,7 @@
                    :tieevent 0
                    :restevent 1
                    )
-    
+    )
         ))
 
 
@@ -184,39 +165,88 @@
         ))
 
 
+;(member 'gracemusic (flat '(("f") (gracemusic) (tieevent "pp") ("fff"))))
+
+
+
+;;;;;;;;;;;
+;;; NoteEvent
+;;; (fmakunbound 'make-music) 
+
+(defmethod make-music ((type (eql 'NoteEvent)) &rest other-args)
+  (let* ((art (find-value-in-lily-args other-args 'articulations))
+        ; (toto (find-value-in-lily-args other-args 'tieevent))
+         (tie (if (member 'tieevent (flat art)) 1 0))) 
+   ; (print (list "tie:" art))
+    (if *lil-imp-pitch*
+        (let* ((durs (find-value-in-lily-args other-args 'duration))
+               (fig (car durs))
+               (dot (second durs))
+               (fact (third durs))
+               )
+          (make-instance 'lily-dur
+                         :figure fig
+                         :dot dot
+                         :fact fact
+                         :tieevent tie
+                         :restevent 0
+                         )
+          )
+      
+      (x-append
+       (if (= tie 0)
+           (remove nil (list (find-value-in-lily-args other-args 'pitch)))
+           )
+       (last-elem art))
+      )))
 
 
 ;;;EventChord
-
+;;; (fmakunbound 'make-music) 
 
 (defmethod make-music ((type (eql 'EventChord)) &rest other-args)
   (let* ((contents (remove nil (find-value-in-lily-args other-args 'elements)))
-         (tie-ev (last-elem contents))
+        ; (tie-ev (last-elem contents))
+         (tie-ev (second (reverse contents)))
          dur chord tie)
+   ;(print (list "contents:" contents))
+   
     (if *lil-imp-pitch*
         (if (equal tie-ev 'tieevent) 
-            (progn (setf (tieevent (car contents)) 1) (car contents))
-        (car contents))
+            (progn 
+              (setf (tieevent (car contents)) 1) 
+              (car contents))
+          (car contents))
 
-
-
-
-          (progn
-            (loop for i in contents
-                  do (if (listp i)
-                         (push (last-elem i) chord)
-                       (push i tie )
-                       )
-                  )
-       
-            (let ((res (list (objfromobjs (flat (reverse chord)) (make-instance 'chord)) tie)))
-              (if (member 'tieevent (flat res)) nil (remove nil res))
-        
-              )
-            ))
-      ))
-
-
+      
+     ; (let ((test (member 'gracemusic (flat contents))))
+     ;   (if test
+     ;       (print (list "contents:" (flat contents)))
+          
+      
+      (x-append 
+       (progn
+         (loop for i in (butlast contents)
+               do (if (listp i)
+                      (push (last-elem i) chord)
+                    (push i tie )
+                    ))
+       ;(print (list "chord:" (flat (reverse chord))))
+         (let* ((chrd (flat (reverse chord)))
+                (res 
+                 (if chrd
+                     (list (objfromobjs chrd (make-instance 'chord)) tie)
+                   )))
+           (if (member 'tieevent (flat res)) nil (remove nil res))  
+           )
+         ) 
+       (last-elem contents) ;getting the dynamics
+       )
+      
+      
+      )
+    ))
+;))
 
 
 
@@ -277,15 +307,38 @@
 ))
 
 ;;;;;;;;;;;;;;;;;
+;;; (fmakunbound 'make-music) 
+
+#|
+(defmethod make-music ((type (eql 'SequentialMusic)) &rest other-args)
+    (let* ((elements (find-value-in-lily-args other-args 'elements)))
+      (print elements)
+      )
+)
+|#
+
 
 (defmethod make-music ((type (eql 'ApplyContext)) &rest other-args)
   )
 
+(defmethod make-music ((type (eql 'MarkEvent)) &rest other-args)
+  )
+
+(defmethod make-music ((type (eql 'GraceMusic)) &rest other-args)
+    (if (not *lil-imp-pitch*)
+        (list type)
+      ))
+
+(defmethod make-music ((type (eql 'SlurEvent)) &rest other-args)
+  )
 
 (defmethod make-music ((type (eql 'OverrideProperty)) &rest other-args)
   )
 
-(defmethod make-music ((type (eql 'MarkEvent)) &rest other-args)
+(defmethod make-music ((type (eql 'RevertProperty)) &rest other-args)
+  )
+
+(defmethod make-music ((type (eql 'FingeringEvent)) &rest other-args)
   )
 
 ;;;;;;;;;;;;;;;;;
@@ -303,11 +356,10 @@
  (let* ((oct (ly-octave a))
         (note (if (car other-args) (cassq (car other-args) *lilnotes* ) 6000 ));;since 2.19
         (alt (if (second other-args) (ly-alter (second other-args)) 0 )))
-
+   
 (make-instance 'chord 
                :lmidic (list (+ oct note alt)))
  ))
-
 
 ;;;;;;;durations
 
@@ -456,13 +508,20 @@ meaning RT containing other RTs"
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
+#|
+(defun pgcd-of-list (liste)
+       (let ((res (car liste)))
+         (if (cdr liste)
+         (loop for deb in (cdr liste)
+               do (setf res (pgcd res deb)))
+           res)
+         res))
+|#
 (defun pgcd-of-list (liste)
        (let ((res (car liste)))
          (loop for deb in (cdr liste)
                do (setf res (pgcd res deb)))
          res))
-
 
 (defun dotted-lily (n)
   (let ((dot (loop for cnt from 1 to n
@@ -541,8 +600,19 @@ meaning RT containing other RTs"
 
 (defmethod pgcd-of-self ((self number)) self)
 
+#|
 (defmethod pgcd-of-self ((self list))
        (let ((res (car self)))
+         (if (cadr self)
+         (loop for deb in (cdr self)
+               do (setf res (pgcd res deb)))
+           res)
+         res))
+|#
+
+(defmethod pgcd-of-self ((self list))
+       (let ((res (car self)))
+
          (loop for deb in (cdr self)
                do (setf res (pgcd res deb)))
          res))
@@ -573,7 +643,7 @@ meaning RT containing other RTs"
 
 
 (defmethod get-dur-list ((self number)) self)
-
+;(defmethod get-dur-list ((self t)))
 
 (defmethod get-dur-list ((self list))
   (apply '+ (mapcar 'get-dur-list self)))
@@ -683,7 +753,7 @@ meaning RT containing other RTs"
              (str (replace-all str "#t" "'t"));;; eliminated space after "#t " in "#t"
              (str (replace-all str "<" "'("))
              (str (replace-all str ">" ")"))
-             (str (replace-all str "#" "'"));;;here replaced by quote instead of notheing 
+             (str (replace-all str "#" "'"));;;here replaced by quote instead of nothing 
              ;in case we have ('t 't 'f) we will have '('t 't 'f)
             ; (str (replace-all str ":" " "))
             )
@@ -722,7 +792,7 @@ meaning RT containing other RTs"
                                         (push i (first resultat))
                                         (pop ord))))))
          )
-   ; (print grouping)
+    ;(print grouping)
     (cdr (reverse (loop for i in resultat     ;;;cAdr NO !!
                         collect  (let ((rev (reverse i)))
                                    (if (typep (cadr rev) 'lily-dur)
@@ -738,22 +808,87 @@ meaning RT containing other RTs"
 
 
 
-;;notes
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;notes
+(defun massq (item list)
+(cdr (assoc item list :test 'equal)))
 
+(setf *dyn-imp* 
+      '(
+        ("ppppp" . 10)
+        ("pppp" . 20)
+        ("ppp" . 30)
+        ("pp" . 40)
+        ("p" . 50)
+        ("mp" . 60)
+        ("mf" . 70)
+        ("f" . 80)
+        ("ff" . 90)
+        ("fff" . 100)
+        ("ffff" . 110)
+        ("fffff" . 120)
+        ("sf" . 127)
+        ))
+
+(defun get-dyn-from-lily (elmt)
+  (massq elmt *dyn-imp*))
+;(get-dyn-from-lily "pp")
+
+
+(defun chordlistonly (tree)
+  (if (atom tree)
+      tree
+      (mapcar (lambda (subtree) (if (and (atom subtree) (chord-p  subtree)) 
+                                    subtree 
+                                  (chordlistonly subtree)))
+              tree)))
+
+(defun all-chords (list)
+  (if (= (length list) 1) nil
+  (let ((res t))
+    (loop for i in list 
+          do (if (not (chord-p i)) (setf res nil)))
+    res)))
+
+(defun merge-chords (list)
+  (loop for i in list 
+        collect (if (all-chords i) 
+                    (list (reduce #'merger i))
+                  i)))
+
+
+;;per voice
 (defun lily-notes (file)
-  (remove nil (loop for i in (flat file)
-                    collect (if (chord-p i) i))))
+  (let* ((clean (deep-remove-items 
+                 (list 'absolutedynamicevent
+                       'gracemusic
+                       nil)
+                 file))
+         (chord-pair (chordlistonly clean))
+         (voice (flat-once (mapcar 'cdr chord-pair)))
+         (voice (merge-chords voice))
+         buf)
+   ; (print (list "lily-notes:" voice))
+    (loop for i in voice
+          do (cond 
+              ((and (= 1 (length i)) (stringp (car i))) (setf buf (car i)))
+              ((and (= 1 (length i)) (chord-p (car i))) (setf (lvel (car i)) (list (get-dyn-from-lily buf))))
+              ((and (chord-p (car i)) (second i)) 
+               (prog1
+                   (setf (lvel (car i)) (list (get-dyn-from-lily (second i))))
+                 (setf buf (second i))))
+              (t)))
+    
+    (remove nil (loop for i in (flat voice)
+                      collect (if (chord-p i) i ))))) 
 
 
+;;per poly
 (defun get-lily-chords (file)
   (let* ((stream (lily-chord-or-dur file nil))
-        (grouped (all-grp-meas stream)))
-    (loop for i in stream
-          collect (lily-notes (remove-tempi i)))))
-    
+         (voices (all-grp-meas (car stream))))
+    (loop for i in voices collect (lily-notes i))))
 
-
-;;tree
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;tree
 
 
 (defun remove-tempi (list)
@@ -768,14 +903,24 @@ meaning RT containing other RTs"
           collect (list (car i) (cdr i))))
 
 
+(defun deep-remove (item tree)
+  (if (atom tree)
+      tree
+      (mapcar (lambda (subtree) (deep-remove item subtree))
+              (remove item tree :test #'equal))))
 
-
+(defun deep-remove-items (items tree)
+  (let* ((res (clone tree)))
+    (loop for i in items
+          do (setf res (deep-remove i res)))
+    res))
 
 (defun lily-tree (voice)
   "one voice"
   ;(print (all-grp-meas file))
   (let* ((timesig (mapcar 'car voice))
-         (lildurs (mapcar 'cadr voice))
+         (lildurs (mapcar 'cdr voice))
+         (lildurs (deep-remove 'gracemusic lildurs));removes gracemusic
          (ratios (loop for i in lildurs
                        collect  (let ((obj (if (= 1 (length i)) (car i) i)))
                                   (c-obj-tup (comp-obj obj)))))
@@ -787,11 +932,17 @@ meaning RT containing other RTs"
          (puls (givepulses measures))
          (rst-ties (tie-rest-list voice)) 
 ;;;prevoir si derniere note est liee ENLEVER LE SHIT !
+;;donne error index too large
          (newpuls (om* puls rst-ties))
          (tree (copy-rtree measures newpuls)))
+   ; (print lildurs)
     tree
     ))
 
+;a voir probleme dans lily-tree
+;(setf ratio '(1 (3/4 7/32 1/32) 1 1 1 1 (1/8 1/8 3/4) 1 (1/2 1/2) 1 (1/2 7/32 1/32 1/4) 1 (3/4 7/32 1/32) 1 1 (3/4 1/4) 1 1 1 (1/4 (1/5 1/20) 1/2) 1 1))
+
+;(translate->rt ratio)
 
 
 (defun lily-chord-or-dur (pathname mode)
@@ -803,16 +954,40 @@ meaning RT containing other RTs"
 
 (defun get-lily-tree (file)
   (let* ((stream (lily-chord-or-dur file t))
-         (grouped (all-grp-meas stream)))
+         (grouped (all-grp-meas (car stream)))) ;fix
+    ;(print grouped)
     (loop for i in grouped
           collect (lily-tree i))))
 
 
 
+;This error is due to a missing barcheck
+;Error while evaluating the box LILY->OM 2 : Division-by-zero caused by / of (1 0).
 
 
 ;;;tempo
 
+(defun lildur-p (item)
+  (equal (type-of item) 'lily-dur))
+
+
+
+(defun filt-tempo-meas (list)
+  (let ((flt1 (remove 'nil
+                      (loop for i in list 
+                            collect (if (not (lildur-p i)) i))))
+        )
+    (remove 'nil
+    (loop for i in flt1
+          collect (if (not (equal (car i) 'timesignaturemusic)) i)))))
+
+
+
+
+#|
+(defun get-li-tempo (file)
+  (let* ((stream (car (lily-chord-or-dur file t)))
+|#
 
 (defun filter-tmp-chng (list)
                 (let* ((ord list)
@@ -878,11 +1053,19 @@ meaning RT containing other RTs"
 ;;;Lilypond doesn't support correctly polytempi
 ;;;so duplicate the first voice tempi changes to all parts!
 
+#|
 (defun get-lily-tempo (file)
   (let* ((stream (lily-chord-or-dur file t)))
-    (loop for i in stream
+    (loop for i in (car stream);fix
           collect (lily-tempo i))))
+|#
 
+
+(defun get-lily-tempo (file)
+  (let* ((stream (car (lily-chord-or-dur file t)))
+         (lgt (length stream))
+         (tempo (lily-tempo (car stream))))
+    (repeat-n tempo lgt)))
 
 ;;;;;;
 
