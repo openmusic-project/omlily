@@ -107,9 +107,9 @@
 (defvar ly-set-middle-C! nil)
 (defvar cross-staff-connect nil)
 ;(defvar constante-hairpin nil)
+
+
 ;;;RestEvent
-
-
 
 (defmethod make-music ((type (eql 'RestEvent)) &rest other-args)
   (let* ((durs (find-value-in-lily-args other-args 'duration))
@@ -333,7 +333,11 @@
   )
 
 (defmethod make-music ((type (eql 'OverrideProperty)) &rest other-args)
-  )
+ ; (let* ((val (list (find-value-in-lily-args other-args 'grob-value))))
+ ; (list type val)
+;  )
+
+)
 
 (defmethod make-music ((type (eql 'RevertProperty)) &rest other-args)
   )
@@ -342,7 +346,16 @@
   )
 
 ;;;;;;;;;;;;;;;;;
+;;list of variables to be declared
+;not needed since the fix using quote-str with read-lily-file 
+;it ignores non-quoted declarations.
+;(defvar tuplet-number--calc-denominator-text nil)
+;(defvar constante-hairpin nil)
+;(defvar flared-hairpin nil)
 
+
+
+;;;;;;;;;;;;;;;;;
 
 (defun ly-octave (oct)
   ( * oct 1200))
@@ -728,19 +741,58 @@ meaning RT containing other RTs"
 
 ;;;;;
 
-
+;not used anymore
 (defun remove-markup  (lst)
   (if (atom lst) lst
     (if (equal (car lst) 'markup) nil 
       (x-append (car lst)
       (mapcar 'remove-markup (cdr lst))))))
 
+(defmethod! string->ascii ((text t))
+  :icon 908
+  :indoc '("text")
+  :initvals '(nil)
+  :doc "Returns the ascii code of the text-string <text>."
+  
+  (let ((format-text (if (listp text) (first text) text)))
+    (if (stringp format-text)
+      (let ((char-text (coerce format-text 'list)))
+        (mapcar #'(lambda (x) (char-code (character x))) char-text))
+      (format nil "this is not a string"))))
+
+
+
+(defmethod! ascii->string ((asciilist list))
+  :icon 908
+  :indoc '("asciilist")
+  :initvals '(nil)
+  :doc "Returns the string equivalent from <asciilist> "
+
+  (let ((aString (make-string  (length asciilist))))
+    (loop for ascii in asciilist
+          for index from 0 do
+          (setf (elt aString index) (code-char ascii)))
+    astring))
+
+
+
+(defun quote-str (string)
+  "For some lilypond overrides arguments  such as tuplet-number::calc-denominator-text not quoted when displaymusiced, this will quote them"
+  (let* ((trimed (string-trim " " string))
+         (num (string->ascii trimed)))
+    (if (and 
+         num
+         (>= (car num) 97)
+         (<= (car num) 122))
+        (ascii->string (x-append 39 num))
+      (ascii->string (x-append 32 num)))))
+ 
 
 (defun read-lily-file (pathname)
   (with-open-file (file pathname :direction :input)
     (let ((current-line (read-line file nil nil)))
       (let* ((str 
-              (reduce #'(lambda (s1 s2) (concatenate 'string s1 s2))
+              (reduce #'(lambda (s1 s2) (concatenate 'string s1 (quote-str s2)))
                      
                       (cons current-line 
                             (loop while current-line collect
@@ -756,10 +808,10 @@ meaning RT containing other RTs"
              (str (replace-all str "#" "'"));;;here replaced by quote instead of nothing 
              ;in case we have ('t 't 'f) we will have '('t 't 'f)
             ; (str (replace-all str ":" " "))
-            )
+             )
         (read-from-string str)
      ;  (remove-markup (read-from-string str))
-))))
+        ))))
 
 
 
