@@ -87,5 +87,6 @@
 "returns the lilypond version installed"
  #+linux(lilypond-version?);change
  #+macosx(lilypond-version?)
- #+win32 (string-from-space2 (find-lilypond-version)))
+ #+win32 (lilypond-version?)
+ )
 
