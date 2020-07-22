@@ -34,9 +34,9 @@
      ((equal *om-os* :mac) 
       (list :lilypond-path (pathname (lilypond?))
                )) 
-     ((equal *om-os* :win) 
-      (list :lilypond-path (pathname (lilypond?))
-            ))
+    ; ((equal *om-os* :win) 
+    ;  (list :lilypond-path (pathname (lilypond?))
+    ;        ))
      (t (list :lilypond-path (pathname "~/bin/lilypond")))))
 
 
