@@ -917,7 +917,7 @@ meaning RT containing other RTs"
                  file))
          (chord-pair (chordlistonly clean))
          (voice (flat-once (mapcar 'cdr chord-pair)))
-         (voice (merge-chords voice))
+         (voice (merge-chords (remove 'nil voice)))
          buf)
    ; (print (list "lily-notes:" voice))
     (loop for i in voice
