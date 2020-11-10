@@ -89,7 +89,7 @@
 (unless (fboundp 'om::set-lib-release) (defmethod om::set-lib-release (version &optional lib) nil))
 
 
-(set-lib-release 3.3) 
+(set-lib-release 3.2) 
 
 
 (om-print "
