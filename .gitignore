@@ -1,3 +1,5 @@
+/omlily\ 3.2/sources/*.*fasl
+
 *.lisp~
 *.tex~
 *.out
