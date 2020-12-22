@@ -62,7 +62,7 @@
                (progn 
                  (push i (car res))
                  (pop liste)))
-              t))
+              (t )))
           (mapcar 'length (reverse res))))
 
 
