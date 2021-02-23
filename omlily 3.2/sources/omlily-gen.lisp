@@ -180,7 +180,7 @@ C3 a quartertone sharp (midi-cent 6050), would be labeled 'C+3'.  Gradations
 smaller than a quartertone are expressed as the closest  quartertone + or - the 
 remaining cent value (i.e., midi-cent 8176 would be expressed as Bb4-24)."
  
-  (deep-mapcar 'mc->lilynotes 'mc->lilynotes1 (approx-m midics? 4)))
+  (deep-mapcar 'mc->lilynotes 'mc->lilynotes1 (approx-m midics?  *approx-midic*)))
 
 
 
@@ -227,7 +227,7 @@ C3 a quartertone sharp (midi-cent 6050), would be labeled 'C+3'.  Gradations
 smaller than a quartertone are expressed as the closest  quartertone + or - the 
 remaining cent value (i.e., midi-cent 8176 would be expressed as Bb4-24)."
  
-  (deep-mapcar 'mc->lilynotes-nat 'mc->lilynotes1-nat (approx-m midics? 4)))
+  (deep-mapcar 'mc->lilynotes-nat 'mc->lilynotes1-nat (approx-m midics?  *approx-midic*)))
 
 
 

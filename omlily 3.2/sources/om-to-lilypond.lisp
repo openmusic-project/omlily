@@ -1,6 +1,6 @@
 (in-package :om)
 
-(defvar *approx-midic* nil)
+(defparameter *approx-midic* 2)
 (setf *approx-midic* 2)
 
 ;change
