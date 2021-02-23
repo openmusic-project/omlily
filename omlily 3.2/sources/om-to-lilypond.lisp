@@ -1,5 +1,8 @@
 (in-package :om)
 
+(defvar *approx-midic* nil)
+(setf *approx-midic* 2)
+
 ;change
 (defun run-lilypond (path &optional mode)
   (let* ((lily-path (pathname-name *LILYPOND-PATH*))
@@ -66,6 +69,10 @@
      (t outfile))))
 
 
+(defun get-score-param (self param)
+  (get-edit-param (associated-box self) param))
+
+
 (defmethod! om->lily ((self poly) 
                       &key 
                       (mode nil)
@@ -73,30 +80,30 @@
                       (switch nil)
                       (path nil)
                       (batch nil))
-            :icon 161
-            :indoc '("self" "clef" "switch" "mode" "paper" "layout" "path" "batch")
-            :initvals '(t nil nil nil nil nil nil nil)
-            :menuins '((1 (("generic" 'gen )
-                           ("polymetric" 'poly )
-                           ))
-                       )
-            :doc "Exports voice, poly,chordseq to lilypond format"
+  :icon 161
+  :indoc '("self" "clef" "switch" "mode" "paper" "layout" "path" "batch")
+  :initvals '(t nil nil nil nil nil nil nil)
+  :menuins '((1 (("generic" 'gen )
+                 ("polymetric" 'poly )
+                 ))
+             )
+  :doc "Exports voice, poly,chordseq to lilypond format"
             ;(setf paper "paper")
-            (let* ((ressource-folder (lib-resources-folder (find-library "omlily")))
-                   (paperfile *lily-paper-other*) 
-                   (pathname (or path (om-choose-new-file-dialog)))
-                   (layoutfile
-                    (if (or (equal mode 'gen) (= *default-comp-mode* 0))
-                        (merge-pathnames (string+ "lily-templates/layouts/" "template" ".ly") ressource-folder)
-                      (merge-pathnames (string+ "lily-templates/layouts/" "template1" ".ly") ressource-folder))
-                    )
-                    
-                   (lilyfile 
-                    (if (or (equal mode 'gen) (= *default-comp-mode* 0))
-                        (write-lil-file (cons-lil-expr-extr self (or clef (read-from-string *lily-clef*)) (or switch (read-from-string *split-note*))) pathname paperfile layoutfile)
-                      (write-lil-file (cons-lily-tempo-ex-expr self (or clef (read-from-string *lily-clef*)) nil (or switch (read-from-string *split-note*))) pathname paperfile layoutfile)
-                      )))
-              (run-lilypond lilyfile batch)))
+  (let* ((ressource-folder (lib-resources-folder (find-library "omlily")))
+         (paperfile *lily-paper-other*) 
+         (pathname (or path (om-choose-new-file-dialog)))
+         (layoutfile
+          (if (or (equal mode 'gen) (= *default-comp-mode* 0))
+              (merge-pathnames (string+ "lily-templates/layouts/" "template" ".ly") ressource-folder)
+            (merge-pathnames (string+ "lily-templates/layouts/" "template1" ".ly") ressource-folder))
+          )
+         (setapprox (setf *approx-midic* (get-score-param self 'approx)))
+         (lilyfile 
+          (if (or (equal mode 'gen) (= *default-comp-mode* 0))
+              (write-lil-file (cons-lil-expr-extr self (or clef (read-from-string *lily-clef*)) (or switch (read-from-string *split-note*))) pathname paperfile layoutfile)
+            (write-lil-file (cons-lily-tempo-ex-expr self (or clef (read-from-string *lily-clef*)) nil (or switch (read-from-string *split-note*))) pathname paperfile layoutfile)
+            )))
+    (run-lilypond lilyfile batch)))
 
 
 (defmethod! om->lily ((self voice) 
@@ -106,31 +113,32 @@
                       (switch nil)
                       (path nil)
                       (batch nil))
-            (let* ((ressource-folder (lib-resources-folder (find-library "omlily")))
-                   (paperfile *lily-paper-other*) 
-                   (pathname (or path (om-choose-new-file-dialog)))
-                   (layoutfile
-                    (if (or (equal mode 'gen) (= *default-comp-mode* 0))
-                        (merge-pathnames (string+ "lily-templates/layouts/" "template" ".ly") ressource-folder)
-                      (merge-pathnames (string+ "lily-templates/layouts/" "template1" ".ly") ressource-folder))
-                    )
-                   (lilyfile 
-                    (if (or (equal mode 'gen) (= *default-comp-mode* 0))
-                        (write-lil-file  (cons-lil-expr-extr 
-                                          (make-instance 'poly
-                                                         :voices self) 
-                                          (or clef (read-from-string *lily-clef*)) 
-                                          (or switch (read-from-string *split-note*))) pathname paperfile layoutfile)
-                      (write-lil-file 
-                       (cons-lily-tempo-ex-expr (make-instance 'poly
-                                                               :voices self) 
-                                                (or clef (read-from-string *lily-clef*)) 
-                                                nil 
-                                                (or switch (read-from-string *split-note*))) pathname paperfile layoutfile)
-                      )))
+  (let* ((ressource-folder (lib-resources-folder (find-library "omlily")))
+         (paperfile *lily-paper-other*) 
+         (pathname (or path (om-choose-new-file-dialog)))
+         (layoutfile
+          (if (or (equal mode 'gen) (= *default-comp-mode* 0))
+              (merge-pathnames (string+ "lily-templates/layouts/" "template" ".ly") ressource-folder)
+            (merge-pathnames (string+ "lily-templates/layouts/" "template1" ".ly") ressource-folder))
+          )
+         (setapprox (setf *approx-midic* (get-score-param self 'approx)))
+         (lilyfile 
+          (if (or (equal mode 'gen) (= *default-comp-mode* 0))
+              (write-lil-file  (cons-lil-expr-extr 
+                                (make-instance 'poly
+                                               :voices self) 
+                                (or clef (read-from-string *lily-clef*)) 
+                                (or switch (read-from-string *split-note*))) pathname paperfile layoutfile)
+            (write-lil-file 
+             (cons-lily-tempo-ex-expr (make-instance 'poly
+                                                     :voices self) 
+                                      (or clef (read-from-string *lily-clef*)) 
+                                      nil 
+                                      (or switch (read-from-string *split-note*))) pathname paperfile layoutfile)
+            )))
                    
-              (run-lilypond lilyfile batch)
-              ))
+    (run-lilypond lilyfile batch)
+    ))
 
 
 

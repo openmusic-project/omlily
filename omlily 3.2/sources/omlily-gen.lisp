@@ -906,7 +906,7 @@ rep))
 
 
 (defmethod cons-lily-note ((self om::note))
-  (car (mc->lilynotes (list (midic self)))))
+  (car (mc->lilynotes (list (approx-m (midic self) *approx-midic*)))))
 
 
 
