@@ -861,8 +861,6 @@ meaning RT containing other RTs"
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;notes
-(defun massq (item list)
-(cdr (assoc item list :test 'equal)))
 
 (setf *dyn-imp* 
       '(
