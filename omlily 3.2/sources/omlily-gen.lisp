@@ -481,7 +481,7 @@ remaining cent value (i.e., midi-cent 8176 would be expressed as Bb4-24)."
   (loop for elt in (cons-lil-expr voice "G") do (print elt)))
 
 
-
+;;;for extras
 ;(defun massq (item list)
 ;(format nil "~S" (cdr (assoc item list :test 'equal))))  
 
@@ -491,8 +491,6 @@ remaining cent value (i.e., midi-cent 8176 would be expressed as Bb4-24)."
 (setf *vel-for-lil*
       '(("i" . "\\ffff") ("h" . "\\fff") ("g" . "\\ff")("f" . "\\f") ("F" . "\\mf") ("e" . "\\sfz")
       ("P" . "\\mp") ("p" . "\\p")("Q" . "\\pp") ("R" . "\\ppp")("S" . "\\pppp")))
-
-
 
 
 ;(format nil "~S" (cdr (assoc "h" *vel-for-lil* :test 'equal)))
