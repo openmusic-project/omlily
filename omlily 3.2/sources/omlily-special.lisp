@@ -152,15 +152,6 @@ sort-mono-voices-by-chan assuming that the voice has uniform channel"
               (mapcar #'get-chan-of-voice voices)))
 |#
 
-;;;for extras
-
-(defun massq (item list)
-(cdr (assoc item list :test 'equal)))
-
-(setf *vel-for-lil*
-      '(("h" . "\\fff") ("g" . "\\ff")("f" . "\\f") ("F" . "\\mf")
-      ("P" . "\\mp") ("p" . "\\p")("Q" . "\\pp") ("R" . "\\ppp")))
-;;;
 
 
 ;;;;;;;;;;;;;DA CODE;;;;;;;;;;;;;;;
@@ -280,7 +271,7 @@ rep))
         (setf rep (append rep (list (format nil  "\\set Staff.timeSignatureFraction = #'(~d . ~d)" 
                                             (car ratio) (second ratio)))))
        (if (equal tempo (tempo->list lastmes)) nil
-        (setf rep (append rep (list (format nil  "\\mark \\markup {\\left-column {{\\line { \\smaller \\general-align #Y #DOWN  \\note #\"4\" #1 \" = ~d \"}} \\tiny \"~d\"}} " tempo *mesure-num*))))
+        (setf rep (append rep (list (format nil  "\\mark \\markup {\\left-column {{\\line { \\smaller \\general-align #Y #DOWN  \\note {4} #1 \" = ~d \"}} \\tiny \"~d\"}} " tempo *mesure-num*))))
         )
       ;  )
       (loop for obj in inside do
@@ -815,11 +806,12 @@ rep))
 
 (setf *cautionnary* t)
 
-
-(defmethod cons-lily-note ((self om::note))
-  (if (and *cautionnary* (not (cont-chord-p (parent self))))
-  (car (mc->lilynotes-nat (list (midic self))))  
-  (car (mc->lilynotes (list (midic self))))))
+;Vu que le cautionnary ne marche pas
+;et la methode est deja definie dans omlily-gen.lisp
+;(defmethod cons-lily-note ((self om::note))
+;  (if (and *cautionnary* (not (cont-chord-p (parent self))))
+;  (car (mc->lilynotes-nat (list (midic self))))  
+;  (car (mc->lilynotes (list (midic self))))))
 
 
 ;;;;;;;;;;;;;;;;;;;;i/o and interface
