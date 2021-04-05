@@ -30,7 +30,7 @@
 
 
 (defun lilypond? ()
-  "tests if csound is installed"
+  "tests if lilypond is installed"
   (let ((test (test-lilypond-bin)))
     (if (not (= 1 test))
       (find-lilypond-path)

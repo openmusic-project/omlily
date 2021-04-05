@@ -19,14 +19,14 @@
 (defmethod get-external-icon ((module (eql 'lilypond))) (and (find-library "omlily") (list 606 (find-library "omlily"))))
 
 
-(defmethod get-external-module-path ((module (eql 'lilypond)) modulepref) (get-pref modulepref :lilypond-path))
+(defmethod get-external-module-path ((module (eql 'lilypond-path)) modulepref) (get-pref modulepref :lilypond-path))
 
-(defmethod set-external-module-path ((module (eql 'lilypond)) modulepref path) 
+(defmethod set-external-module-path ((module (eql 'lilypond-path)) modulepref path) 
   (set-pref modulepref :lilypond-path path))
 
 
 
-(defmethod get-external-def-vals ((module (eql 'lilypond)))
+(defmethod get-external-def-vals ((module (eql 'lilypond-path)))
     (cond
      ((equal *om-os* :linux) 
       (list :lilypond-path (pathname (lilypond?))) 
@@ -46,7 +46,7 @@
 
 
 (defmethod save-external-prefs ((module (eql 'lilypond))) 
-  `(:csound-path ,(om-save-pathname *LILYPOND-PATH*)))
+  `(:lilypond-path ,(om-save-pathname *LILYPOND-PATH*)))
 
 
 (defmethod put-external-preferences ((module (eql 'lilypond)) moduleprefs)
@@ -61,7 +61,7 @@
 (if (not (= 1 (test-lilypond-bin)))
     (progn
       (set-lilypond-path)
-      (put-external-preferences 'lilypond (find-pref-module :externals))
+      (put-external-preferences 'lilypond-path (find-pref-module :externals))
       )
   )
 
@@ -146,7 +146,7 @@
 (setf *lily-paper-size* "a4")
 
 (defvar *lily-paper-orientation* nil)
-(setf *lily-paper-orientation* "landscape")
+(setf *lily-paper-orientation* "portrait")
 
 (defvar *lily-staff-size* nil)
 (setf *lily-staff-size* 18)
@@ -416,7 +416,12 @@
 
 ;set and load tab in om preferences panel 
 (pushr :lilypond *pref-order*)
-(push-pref-module (list :lilypond (get-def-vals :lilypond)))
+
+(defun add-lily-preferences ()
+(push-pref-module (list :lilypond (get-def-vals :lilypond))))
+
+(add-lily-preferences)
+
 
 
 
