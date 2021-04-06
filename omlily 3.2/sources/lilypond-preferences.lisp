@@ -16,7 +16,7 @@
 
 
 (defmethod get-external-name ((module (eql 'lilypond))) "Lilypond")
-(defmethod get-external-icon ((module (eql 'lilypond))) (and (find-library "omlily") (list 606 (find-library "omlily"))))
+(defmethod get-external-icon ((module (eql 'lilypond))) (and (find-library "omlily") (list 161 (find-library "omlily"))))
 
 
 (defmethod get-external-module-path ((module (eql 'lilypond)) modulepref) (get-pref modulepref :lilypond))
