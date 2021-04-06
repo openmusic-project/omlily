@@ -19,39 +19,39 @@
 (defmethod get-external-icon ((module (eql 'lilypond))) (and (find-library "omlily") (list 606 (find-library "omlily"))))
 
 
-(defmethod get-external-module-path ((module (eql 'lilypond-path)) modulepref) (get-pref modulepref :lilypond-path))
+(defmethod get-external-module-path ((module (eql 'lilypond)) modulepref) (get-pref modulepref :lilypond))
 
-(defmethod set-external-module-path ((module (eql 'lilypond-path)) modulepref path) 
-  (set-pref modulepref :lilypond-path path))
+(defmethod set-external-module-path ((module (eql 'lilypond)) modulepref path) 
+  (set-pref modulepref :lilypond path))
 
 
 
-(defmethod get-external-def-vals ((module (eql 'lilypond-path)))
+(defmethod get-external-def-vals ((module (eql 'lilypond)))
     (cond
      ((equal *om-os* :linux) 
-      (list :lilypond-path (pathname (lilypond?))) 
+      (list :lilypond (pathname (lilypond?))) 
       )
      ((equal *om-os* :mac) 
-      (list :lilypond-path (pathname (lilypond?))
+      (list :lilypond (pathname (lilypond?))
                )) 
     ; ((equal *om-os* :win) 
     ;  (list :lilypond-path (pathname (lilypond?))
     ;        ))
-     (t (list :lilypond-path (pathname "~/bin/lilypond")))))
+     (t (list :lilypond (pathname "~/bin/lilypond")))))
 
 
 (defun set-lilypond-path ()
-      (set-pref (find-pref-module :externals) :lilypond-path (pathname (find-lilypond-path)))
+      (set-pref (find-pref-module :externals) :lilypond (pathname (find-lilypond-path)))
     )
 
 
 (defmethod save-external-prefs ((module (eql 'lilypond))) 
-  `(:lilypond-path ,(om-save-pathname *LILYPOND-PATH*)))
+  `(:lilypond ,(om-save-pathname *LILYPOND-PATH*)))
 
 
 (defmethod put-external-preferences ((module (eql 'lilypond)) moduleprefs)
-    (when (get-pref moduleprefs :lilypond-path)
-      (setf *LILYPOND-PATH* (find-true-external (get-pref moduleprefs :lilypond-path))))
+    (when (get-pref moduleprefs :lilypond)
+      (setf *LILYPOND-PATH* (find-true-external (get-pref moduleprefs :lilypond))))
     t)
       
 
@@ -178,9 +178,7 @@
 
 (defmethod put-preferences ((iconID (eql :lilypond)))
 
-  (let* ((modulepref (find-pref-module iconID))
-         (quantparams (get-pref modulepref :quantify))
-         )
+  (let* ((modulepref (find-pref-module iconID)))
     (setf *lily-title* (get-pref modulepref :lily-title))
     (setf *lily-composer-name* (get-pref modulepref :user-name))
     (setf *lily-clef* (get-pref modulepref :lily-clef))
