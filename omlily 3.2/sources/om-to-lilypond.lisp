@@ -69,8 +69,13 @@
      (t outfile))))
 
 
+
 (defun get-score-param (self param)
-  (get-edit-param (associated-box self) param))
+  "where <param> is approx.
+Note: Instances don't allow access to param."
+  (if (associated-box self)
+  (get-edit-param (associated-box self) param)
+    4))
 
 
 (defmethod! om->lily ((self poly) 
