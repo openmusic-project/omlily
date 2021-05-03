@@ -899,7 +899,7 @@ meaning RT containing other RTs"
           do (if (not (chord-p i)) (setf res nil)))
     res)))
 
-(defun merge-chords (list)
+(defun mergechords (list)
   (loop for i in list 
         collect (if (all-chords i) 
                     (list (reduce #'merger i))
@@ -915,7 +915,7 @@ meaning RT containing other RTs"
                  file))
          (chord-pair (chordlistonly clean))
          (voice (flat-once (mapcar 'cdr chord-pair)))
-         (voice (merge-chords (remove 'nil voice)))
+         (voice (mergechords (remove 'nil voice)))
          buf)
    ; (print (list "lily-notes:" voice))
     (loop for i in voice
