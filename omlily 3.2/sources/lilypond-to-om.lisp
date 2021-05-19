@@ -436,6 +436,8 @@ is replaced with replacement."
 
 ;;;;;;;;;;;;;Test Operations on RTs;;;;;;;;;;;;;;;;
 
+;integrated in OM since vers. 6.19
+#|
 (defun all-atoms? (liste)
   "test in a list if all are atoms. If not 
 this means there's a list inside- c-a-d un S de RT"
@@ -450,7 +452,7 @@ this means there's a list inside- c-a-d un S de RT"
                 t
                 (setf res nil))))
     res))
-
+|#
 
 
 (defun not-all-atom-lst (list)
