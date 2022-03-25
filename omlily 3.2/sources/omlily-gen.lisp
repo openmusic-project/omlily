@@ -14,33 +14,8 @@
 
 
 
+;not good!
 #|
-(defun reduce-num-den (list)
-    "Reduit les ratios dedoubles. C-a-d 
-si on a (14 8) il retourne (7 4)"
-
-    (let ((res list))
-      (setf res
-	    (list (/  (car res) 2)
-		  (/ (second res) 2)))
-      (if (or (ratiop (car res))
-	      (ratiop (second res)))
-	  (list (* 2 (car res))
-		(* 2 (second res)))
-	  (reduce-num-den res)
-	  )))
-
-|# 
-
-(defun list2ratio (list)
-(/ (car list) (second list)))
-
-(defun ratio2list (elem)
-    (list (numerator elem)
-          (denominator elem)))
-
-
-
 (defun reduce-num-den (list)
   "this one reduces all!!!"
   (let* ((red (ratio2list (list2ratio list)))
@@ -52,7 +27,7 @@ si on a (14 8) il retourne (7 4)"
 (list (* 2 num) den)
         
       red)))
-
+|#
 
 
 ;;;;;;;;;;;;;;Utilities section
