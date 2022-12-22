@@ -71,17 +71,22 @@
   (let ((test (test-lilypond-bin)))
     (if (equal 1 test)
         "\no-version"
-      (string-from-space2 (find-lilypond-version))))
+      (string-from-space3 (find-lilypond-version))))
   )
 
 ;;from om string-from-space function
 
+;depreciated
 (defun string-from-space2 (string)
    (let* ((index (search " " string))
          (frst (if index (subseq string (1+ index)) string)))
      (let ((indx (search " " frst)))
        (if indx (subseq frst (1+ indx)) frst))))
 
+;compiles with new lilypond version
+(defun string-from-space3 (string)
+  (let* ((dig (position-if #'digit-char-p string)))
+    (subseq string dig (+ dig 6))))
 
 (defun lilypond-version ()
 "returns the lilypond version installed"
