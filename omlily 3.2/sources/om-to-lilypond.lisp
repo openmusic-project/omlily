@@ -99,8 +99,8 @@ Note: Instances don't allow access to param."
          (pathname (or path (om-choose-new-file-dialog)))
          (layoutfile
           (if (or (equal mode 'gen) (= *default-comp-mode* 0))
-              (merge-pathnames (string+ "lily-templates/layouts/" "template" ".ly") ressource-folder)
-            (merge-pathnames (string+ "lily-templates/layouts/" "template1" ".ly") ressource-folder))
+              (merge-pathnames (string+ "lily-templates/layouts/" "template1" ".ly") ressource-folder)
+            (merge-pathnames (string+ "lily-templates/layouts/" "template2" ".ly") ressource-folder))
           )
          (setapprox (setf *approx-midic* (get-score-param self 'approx)))
          (lilyfile 
@@ -123,8 +123,8 @@ Note: Instances don't allow access to param."
          (pathname (or path (om-choose-new-file-dialog)))
          (layoutfile
           (if (or (equal mode 'gen) (= *default-comp-mode* 0))
-              (merge-pathnames (string+ "lily-templates/layouts/" "template" ".ly") ressource-folder)
-            (merge-pathnames (string+ "lily-templates/layouts/" "template1" ".ly") ressource-folder))
+              (merge-pathnames (string+ "lily-templates/layouts/" "template1" ".ly") ressource-folder)
+            (merge-pathnames (string+ "lily-templates/layouts/" "template2" ".ly") ressource-folder))
           )
          (setapprox (setf *approx-midic* (get-score-param self 'approx)))
          (lilyfile 
@@ -159,7 +159,7 @@ Note: Instances don't allow access to param."
                              (batch nil))
             (let* ((ressource-folder (lib-resources-folder (find-library "omlily")))
                    (paperfile *lily-paper-other*)
-                   (layoutfile (merge-pathnames (string+ "lily-templates/layouts/" "template" ".ly") ressource-folder))
+                   (layoutfile (merge-pathnames (string+ "lily-templates/layouts/" "template1" ".ly") ressource-folder))
                    (pathname (or path (om-choose-new-file-dialog)))
                    (lilyfile (write-crdseq-lily-file (staff-data self) pathname))
                    )
@@ -175,7 +175,7 @@ Note: Instances don't allow access to param."
                        (batch nil))
             (let* ((ressource-folder (lib-resources-folder (find-library "omlily")))
                    (paperfile *lily-paper-other*)
-                   (layoutfile (merge-pathnames (string+ "lily-templates/layouts/" "template" ".ly") ressource-folder))
+                   (layoutfile (merge-pathnames (string+ "lily-templates/layouts/" "template1" ".ly") ressource-folder))
                    (pathname (or path (om-choose-new-file-dialog)))
                    (lilyfile (write-multiseq-lily-file 
                               (staff-data self)
