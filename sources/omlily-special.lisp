@@ -271,7 +271,7 @@ rep))
         (setf rep (append rep (list (format nil  "\\set Staff.timeSignatureFraction = #'(~d . ~d)" 
                                             (car ratio) (second ratio)))))
        (if (equal tempo (tempo->list lastmes)) nil
-        (setf rep (append rep (list (format nil  "\\mark \\markup {\\left-column {{\\line { \\smaller \\general-align #Y #DOWN  \\note {4} #1 \" = ~d \"}} \\tiny \"~d\"}} " tempo *mesure-num*))))
+        (setf rep (append rep (list (format nil  "\\textMark \\markup {\\left-column {{\\line { \\smaller \\general-align #Y #DOWN  \\note {4} #1 \" = ~d \"}} \\tiny \"~d\"}} " tempo *mesure-num*))))
         )
       ;  )
       (loop for obj in inside do

@@ -60,7 +60,11 @@ indent = 0.0
           \override TupletBracket.padding = #2 
 	  \override PaperColumn.used = ##t 
           \override DynamicLineSpanner.staff-padding = #3  %%add this by default Should I ??
-          \remove "Mark_engraver" %%%for the fermata on barline 
+  	  %%Moved to Staff context for poly(tempo)marking	
+          \remove Mark_engraver 
+          \remove Text_mark_engraver
+	  \remove Staff_collecting_engraver
+          
 %\override Flag.stencil = #modern-straight-flag
 %%For multitempi
 \override RehearsalMark.self-alignment-X = #LEFT 
@@ -83,6 +87,9 @@ indent = 0.0
      %     \consists "Timing_translator"
 %	  \consists "Default_bar_line_engraver"
           \numericTimeSignature
+          \consists Mark_engraver
+	  \consists Text_mark_engraver
+	  \consists Staff_collecting_engraver
 
 }
 }
