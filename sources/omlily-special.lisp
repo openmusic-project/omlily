@@ -322,7 +322,7 @@ rep))
       (let ((pos (length rep))
             (depth 0))
         (setf rep (append rep (list (format nil "~%")))) ;;;a la place de ce qui suit
-        ;(setf rep (append rep (list (format nil "\\once \\override TupletBracket #'padding = #"))))
+        ;(setf rep (append rep (list (format nil "\\once \\override TupletBracket.padding = #"))))
         (let* ((corratio (reduce-num-den (list num denom)))
                (numer (car corratio))
                (den (second corratio)))
