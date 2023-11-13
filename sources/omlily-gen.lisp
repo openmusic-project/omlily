@@ -460,8 +460,9 @@ remaining cent value (i.e., midi-cent 8176 would be expressed as Bb4-24)."
 ;(defun massq (item list)
 ;(format nil "~S" (cdr (assoc item list :test 'equal))))  
 
+
 (defun massq (item list)
-(cdr (assoc item list :test 'equal)))
+  (cdr (assoc (string item) list :test 'equalp)))
 
 (setf *vel-for-lil*
       '(("i" . "\\ffff") ("h" . "\\fff") ("g" . "\\ff")("f" . "\\f") ("F" . "\\mf") ("e" . "\\sfz")
@@ -677,7 +678,7 @@ rep))
 (defun get-extra-vel (liste)
   (remove 'nil 
   (loop for i in liste
-        collect (if (vel-extra-p i) (thechar i)))))
+        collect (if (vel-extra-p i) (dynamics i)))))
 
 
 
@@ -693,7 +694,7 @@ rep))
          (extra (car (mapcar #'extra-obj-list notes)))
          (text (car (get-extra-text extra)))
          (velex (if (vel-extra-p (car extra))
-                    (thechar (car extra))))
+                    (dynamics (car extra))))
          (durtot (if (listp dur) (car dur) dur))
          (inside (om::inside self))
          (vel (car (om::lvel self)))
@@ -771,7 +772,7 @@ rep))
          (extra (car (mapcar #'extra-obj-list notes)))
          (text (car (get-extra-text extra)))
          (velex (if (vel-extra-p (car extra))
-                    (thechar (car extra))))
+                    (dynamics (car extra))))
          (durtot (if (listp dur) (car dur) dur))
          (inside (om::inside self))
          (vel (car (om::lvel self)))
