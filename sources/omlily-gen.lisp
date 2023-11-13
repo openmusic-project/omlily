@@ -503,6 +503,8 @@ remaining cent value (i.e., midi-cent 8176 would be expressed as Bb4-24)."
           (progn 
           (setf *voice-num* (incf *voice-num*))
           (setf rep (append rep (list (format nil "~%\\new Staff  {"))))
+          (when (name staff)
+		 (setf rep (append rep (list (format nil "~2%\\set Staff.instrumentName=~S" (name staff))))))
           (setf rep (append rep (list (string+ "\\"(cassq *voice-num* *voice-rank* )))))
           (setf rep (append rep (list "}")))
 ))
