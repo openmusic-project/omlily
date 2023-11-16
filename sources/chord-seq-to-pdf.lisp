@@ -216,7 +216,7 @@ to c4 and returns a multiseq"
             )
         (format out "}~%")
         (format out "\\new Staff~%")
-       ; (format out "\\with {\\override VerticalAxisGroup #'keep-fixed-while-stretching = ##t }~%")
+       ; (format out "\\with {\\override VerticalAxisGroup.keep-fixed-while-stretching = ##t }~%")
         (format out "{ \\clef bass ~%")
          (format out " \\crossStaff { ~%")
         (format out "~A" (second list))
@@ -263,23 +263,23 @@ to c4 and returns a multiseq"
       (format out "\\consists #Span_stem_engraver~%}~%")
       (format out "\\context {\\Score ~%")
       (format out "barAlways = ##t~%")
-      (format out "\\override TimeSignature #'transparent = ##t~%")
-      (format out "\\override BarLine #'transparent = ##t~%") 
-      (format out "\\override BarLine #'allow-span-bar = ##f~%") 
+      (format out "\\override TimeSignature.transparent = ##t~%")
+      (format out "\\override BarLine.transparent = ##t~%") 
+      (format out "\\override BarLine.allow-span-bar = ##f~%") 
       (format out "\\override BarNumber.transparent = ##t~%") 
-      (format out "\\override SpacingSpanner #'strict-note-spacing = ##t~%")
+      (format out "\\override SpacingSpanner.strict-note-spacing = ##t~%")
       (format out "proportionalNotationDuration = #(ly:make-moment 1 32)~%")
 
       (format out "defaultBarType = \"\"}~%")
       
       (format out "\\context {\\Staff ~%")
-      (format out "\\override VerticalAxisGroup #'minimum-Y-extent = #'(-3 . 3)~%")
-      (format out "\\override Stem #'cross-staff = ##t~%")
+      (format out "\\override VerticalAxisGroup.minimum-Y-extent = #'(-3 . 3)~%")
+      (format out "\\override Stem.cross-staff = ##t~%")
       
       ;(format out "minimumVerticalExtent = #'(-6 . 6)~%")
-      (format out "\\override TimeSignature #'break-visibility = #all-invisible~%")
-      (format out "\\override TimeSignature #'style = #'()~%")
-      (format out "\\override NoteHead #'style = #'baroque~%}~%")
+      (format out "\\override TimeSignature.break-visibility = #all-invisible~%")
+      (format out "\\override TimeSignature.style = #'()~%")
+      (format out "\\override NoteHead.style = #'baroque~%}~%")
       ;(format out "}~%~%~%")
       
       (format out "\\context {\\Voice ~%")
@@ -287,8 +287,8 @@ to c4 and returns a multiseq"
       (format out "}~%~%~%")
       ;;;;;
 
-     ; (format out "stemExtend = \\once \\override Stem #'length = #26~%")
-     ; (format out "noFlag = \\once \\override Stem #'flag-style = #'no-flag~%")
+     ; (format out "stemExtend = \\once \\override Stem.length = #26~%")
+     ; (format out "noFlag = \\once \\override Stem.flag-style = #'no-flag~%")
 
     (chrdseqlil list out)
       )
@@ -329,9 +329,9 @@ to c4 and returns a multiseq"
 
       (format out "\\context {\\Score ~%")
       (format out "barAlways = ##t~%")
-      (format out "\\override TimeSignature #'transparent = ##t~%")
-      (format out "\\override BarLine #'transparent = ##t~%") 
-      (format out "\\override BarLine #'allow-span-bar = ##f~%") 
+      (format out "\\override TimeSignature.transparent = ##t~%")
+      (format out "\\override BarLine.transparent = ##t~%") 
+      (format out "\\override BarLine.allow-span-bar = ##f~%") 
       (format out "\\override BarNumber.transparent = ##t~%") 
       
       
@@ -340,17 +340,17 @@ to c4 and returns a multiseq"
 
 
       (format out "\\context {\\Staff ~%")
-      (format out "\\override VerticalAxisGroup #'minimum-Y-extent = #'(-3 . 3)~%")
-      (format out "\\override Stem #'cross-staff = ##t~%")
-      (format out "\\override TimeSignature #'style = #'()~%")
-      (format out "\\override NoteHead #'style = #'baroque~%")
-      (format out "\\override TimeSignature #'break-visibility = #all-invisible ~%}~%")
+      (format out "\\override VerticalAxisGroup.minimum-Y-extent = #'(-3 . 3)~%")
+      (format out "\\override Stem.cross-staff = ##t~%")
+      (format out "\\override TimeSignature.style = #'()~%")
+      (format out "\\override NoteHead.style = #'baroque~%")
+      (format out "\\override TimeSignature.break-visibility = #all-invisible ~%}~%")
       ;(format out "}~%~%~%")
       (format out "\\context {\\Voice ~%")
       (format out "\\remove \"Forbid_line_break_engraver\"~%}~%")
       (format out "}~%~%~%")
-      (format out "stemExtend = \\once \\override Stem #'length = #26~%")
-      (format out "noFlag = \\once \\override Stem #'flag-style = #'no-flag~%")
+      (format out "stemExtend = \\once \\override Stem.length = #26~%")
+      (format out "noFlag = \\once \\override Stem.flag-style = #'no-flag~%")
       
       
       ;;;;;
