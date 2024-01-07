@@ -12,28 +12,7 @@
 
 
 
-
-
-;not good!
-#|
-(defun reduce-num-den (list)
-  "this one reduces all!!!"
-  (let* ((red (ratio2list (list2ratio list)))
-         (num (car red))
-         (den (second red)))
-   ; (print red)
-    (if (and ( < num den) ( < (- (* 2 num)  den) (- den num))) 
-           ; (list (get-denom-other (second list) (car list)) (second red))   
-(list (* 2 num) den)
-        
-      red)))
-|#
-
-
 ;;;;;;;;;;;;;;Utilities section
-
-
-
 
 ;;;for note conversion
 
@@ -42,19 +21,27 @@
 
 (setf *kascii-note-c-scale*
   (mapc #'(lambda (x) (setf (car x) (string-downcase (string (car x)))))
-    '((c) (c . :q) (c . :s) (c . :qs)
-      (d) (d . :q) (d . :s) (d . :qs)
-      (e) (e . :q)
-      (f) (f . :q) (f . :s) (f . :qs)
-      (g) (g . :q) (g . :s) (g . :qs)
-      (a) (a . :q) (a . :s) (a . :qs)
-      (b) (b . :q)  )))
+    '((c) (c . :k)(c . :e) (c . :ek) (c . :q) (c . :qk) (c . :qe) (c . :qek)
+      (c . :s) (c . :sk)(c . :se) (c . :sek)(c . :qs) (c . :qsk) (c . :qse) (c . :qsek)
+      (d) (d . :k)(d . :e) (d . :ek) (d . :q) (d . :qk) (d . :qe) (d . :qek)
+      (d . :s) (d . :sk)(d . :se) (d . :sek)(d . :qs) (d . :qsk) (d . :qse) (d . :qsek)
+      (e) (e . :k)(e . :e) (e . :ek) (e . :q) (e . :qk) (e . :qe) (e . :qek)
+      (f) (f . :k)(f . :e) (f . :ek) (f . :q) (f . :qk) (f . :qe) (f . :qek)
+      (f . :s) (f . :sk)(f . :se) (f . :sek)(f . :qs) (f . :qsk) (f . :qse) (f . :qsek)
+      (g) (g . :k)(g . :e) (g . :ek) (g . :q) (g . :qk) (g . :qe) (g . :qek)
+      (g . :s) (g . :sk)(g . :se) (g . :sek)(g . :qs) (g . :qsk) (g . :qse) (g . :qsek)
+      (a) (a . :k)(a . :e) (a . :ek) (a . :q) (a . :qk) (a . :qe) (a . :qek)
+      (a . :s) (a . :sk)(a . :se) (a . :sek)(a . :qs) (a . :qsk) (a . :qse) (a . :qsek)
+      (b) (b . :k)(b . :e) (b . :ek) (b . :q) (b . :qk) (b . :qe) (b . :qek)
+      )))
 
 
 
 (setf *kascii-note-alterations*
    '((:s "is" +100) (:f "es" -100)
-     (:q "ih" +50) (:qs "isih" +150) (:-q "eh" -50) (:f-q "eseh" -150)
+     (:e "iq" +25) (:qe "iseq" +75) (:se "isiq" +125) (:qse "isqq" +175)
+     (:k "ik" +12) (:ek "iqk" +38) (:qk "ihk" +62) (:qek "iseqk" +88) (:sk "isik" +112) (:sek "isiqk" +138) (:qsk "isihk" +162) (:qsek "isiqqk" +188)
+     (:q "is" +50) (:qs "isih" +150) (:-q "eh" -50) (:f-q "eseh" -150)
      (:s "is" +100)))
 
 
@@ -67,21 +54,29 @@
 ;;;;;pour les cautionnary naturals
 
 (setf *k-n-ascii-note-c-scale*
-  (mapc #'(lambda (x) (setf (car x) (string-downcase (string (car x)))))
-    '((c . :n) (c . :q) (c . :s) (c . :qs)
-      (d . :n) (d . :q) (d . :s) (d . :qs)
-      (e . :n) (e . :q)
-      (f . :n) (f . :q) (f . :s) (f . :qs)
-      (g . :n) (g . :q) (g . :s) (g . :qs)
-      (a . :n) (a . :q) (a . :s) (a . :qs)
-      (b . :n) (b . :q)  )))
+(mapc #'(lambda (x) (setf (car x) (string-downcase (string (car x)))))
+    '((c. :n) (c . :k)(c . :e) (c . :ek) (c . :q) (c . :qk) (c . :qe) (c . :qek)
+      (c . :s) (c . :sk)(c . :se) (c . :sek)(c . :qs) (c . :qsk) (c . :qse) (c . :qsek)
+      (d . :n) (d . :k)(d . :e) (d . :ek) (d . :q) (d . :qk) (d . :qe) (d . :qek)
+      (d . :s) (d . :sk)(d . :se) (d . :sek)(d . :qs) (d . :qsk) (d . :qse) (d . :qsek)
+      (e . :n) (e . :k)(e . :e) (e . :ek) (e . :q) (e . :qk) (e . :qe) (e . :qek)
+      (f . :n) (f . :k)(f . :e) (f . :ek) (f . :q) (f . :qk) (f . :qe) (f . :qek)
+      (f . :s) (f . :sk)(f . :se) (f . :sek)(f . :qs) (f . :qsk) (f . :qse) (f . :qsek)
+      (g . :n) (g . :k)(g . :e) (g . :ek) (g . :q) (g . :qk) (g . :qe) (g . :qek)
+      (g . :s) (g . :sk)(g . :se) (g . :sek)(g . :qs) (g . :qsk) (g . :qse) (g . :qsek)
+      (a . :n) (a . :k)(a . :e) (a . :ek) (a . :q) (a . :qk) (a . :qe) (a . :qek)
+      (a . :s) (a . :sk)(a . :se) (a . :sek)(a . :qs) (a . :qsk) (a . :qse) (a . :qsek)
+      (b . :n) (b . :k)(b . :e) (b . :ek) (b . :q) (b . :qk) (b . :qe) (b . :qek)
+      )))
 
 
 
 (setf *k-n-ascii-note-alterations*
-   '((:n "" ) (:s "is" +100) (:f "es" -100)
-     (:q "ih" +50) (:qs "isih" +150) (:-q "eh" -50) (:f-q "eseh" -150)
-     (:s "is" +100)))
+      '((:n "" ) (:s "is" +100) (:f "es" -100)
+        (:e "iq" +25) (:qe "iseq" +75) (:se "isiq" +125) (:qse "isqq" +175)
+        (:k "ik" +12) (:ek "iqk" +38) (:qk "ihk" +62) (:qek "iseqk" +88) (:sk "isik" +112) (:sek "isiqk" +138) (:qsk "isihk" +162) (:qsek "isiqqk" +188)
+        (:q "is" +50) (:qs "isih" +150) (:-q "eh" -50) (:f-q "eseh" -150)
+        (:s "is" +100)))
 
 
 (setf *k-n-ascii-note-scales* (list *k-n-ascii-note-C-scale*))
@@ -122,8 +117,8 @@
 (defun mc->lilynotes1 (midic)
   "Converts <midic> to a string representing a symbolic ascii note."
   (let* ((kascii-note-scale (car *kascii-note-scales*))
-        (dmidic (/ 1200 (length kascii-note-scale))) 
-        note)
+         (dmidic (/ 1200 (length kascii-note-scale)))
+         note)
     (let* ((values (multiple-value-list (round midic dmidic)))
            (midic/50 (car values))
            (cents (cadr values))
@@ -131,14 +126,15 @@
            (oct+2 (car values2))
            (midic<1200 (cadr values2)))
 
-      ;(print (list midic/50 cents oct+2 midic<1200))
-
+      ;(print (list values midic/50 cents oct+2 midic<1200))
+      ;(print (list values2 (nth (/ midic<1200 dmidic) kascii-note-scale)))
       (setq note (nth (/ midic<1200 dmidic) kascii-note-scale))
-      (format nil "~A~A~A~A~A"
+      (format nil "~A~A~A"
               (car note) 
               (or (car (cassq (cdr note) *kascii-note-alterations*)) "")
-              (octaviation oct+2) (if (> cents 0) "+" "") (if (zerop cents) "" cents) ))))
-
+              (octaviation oct+2) 
+              ;(if (> cents 0) "+" "") (if (zerop cents) "" cents)
+              ))))
 
 
 ;(mc->lilynotes1 6350) =====> problem!!!!!!!!!!
@@ -922,7 +918,8 @@ rep))
       (format out "composer = \\markup {\"~D\"}~%"  *lily-composer-name*)
       (format out"}~%~%")
       ;;;;The music
-   
+      (when (or (= 8 *approx-midic*) (= 16 *approx-midic*))
+      (format out "\\include \"omicron.ly\""))   
       ;;;;;
       (loop for elt in list do
             (format out "~A~%" elt))

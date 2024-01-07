@@ -103,6 +103,10 @@ Note: Instances don't allow access to param."
             (merge-pathnames (string+ "lily-templates/layouts/" "template2" ".ly") ressource-folder))
           )
          (setapprox (setf *approx-midic* (get-score-param self 'approx)))
+          (micro (merge-pathnames (string+ "lily-templates/layouts/" "omicron" ".ly") ressource-folder))
+         (destination-directory (merge-pathnames "omicron.ly" (pathname (directory-namestring  pathname))))
+         (copymicro (when (or (= 8 *approx-midic*) (= 16 *approx-midic*))
+                      (uiop:copy-file micro destination-directory)))
          (lilyfile 
           (if (or (equal mode 'gen) (= *default-comp-mode* 0))
               (write-lil-file (cons-lil-expr-extr self (or clef (read-from-string *lily-clef*)) (or switch (read-from-string *split-note*))) pathname paperfile layoutfile)
@@ -127,6 +131,10 @@ Note: Instances don't allow access to param."
             (merge-pathnames (string+ "lily-templates/layouts/" "template2" ".ly") ressource-folder))
           )
          (setapprox (setf *approx-midic* (get-score-param self 'approx)))
+         (micro (merge-pathnames (string+ "lily-templates/layouts/" "omicron" ".ly") ressource-folder))
+         (destination-directory (merge-pathnames "omicron.ly" (pathname (directory-namestring  pathname))))
+         (copymicro (when (or (= 8 *approx-midic*) (= 16 *approx-midic*))
+                      (uiop:copy-file micro destination-directory)))
          (lilyfile 
           (if (or (equal mode 'gen) (= *default-comp-mode* 0))
               (write-lil-file  (cons-lil-expr-extr 

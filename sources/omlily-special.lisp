@@ -843,6 +843,9 @@ rep))
          while (not (file-eof-p in))
          do (let ((line (read-line in)))
               (write-line  line out))))
+              
+      (when (or (= 8 *approx-midic*) (= 16 *approx-midic*))
+      (format out "\\include \"omicron.ly\""))              
       ;;;;The music
 
       (loop for elt in list do
