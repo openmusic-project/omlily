@@ -432,13 +432,20 @@ remaining cent value (i.e., midi-cent 8176 would be expressed as Bb4-24)."
 (setf *init-clef* "\\clef \"G\"")
 
 
-
+#|
 (defun print-lily (voice)
   (setf *mesure-num* 0)
   (setf *voice-num* 1)
   (loop for elt in (cons-lily-expr voice "G" nil) do (print elt)))
+|#
 
+;;for debugging
+;;Note: Don't use split mode (clef change) in preferences
 
+(defun print-lily (voice)
+  (setf *mesure-num* 0)
+  (setf *voice-num* 1)
+  (loop for elt in (cons-lil-expr-extr voice '("G") nil) do (print elt)))
 
 ;;;;;;;;;;;;;;Utilities section
 
@@ -533,8 +540,12 @@ rep))
                    ))
         (mesures (om::inside self))
         (lastmes nil))
+
+   
+
     (when clef
       (setf rep (append rep (list (format nil "\\clef ~s" clef)))))
+    
 
 (if (= 1 *voice-num*)
         (let (mem-mes)
@@ -677,9 +688,42 @@ rep))
         collect (if (vel-extra-p i) (dynamics i)))))
 
 
+(defmethod cons-lil-graces ((graces list))
+  (let ((str ""))
+ (loop for self in graces
+          collect
+        (let* ((notes (inside self))
+               (extra (car (mapcar #'extra-obj-list notes)))
+               (text (car (get-extra-text extra)))
+               (velex (if (vel-extra-p (car extra))
+                          (dynamics (car extra))))
+               (inside (om::inside self))
+               (vel (car (om::lvel self)))
+               (dyn (get-dyn-from-om vel))
+               (chans (om::lchan self)))
+          (if (= (length inside) 1)
+              (setf str (string+ str (cons-lily-note (car inside)) "8 "))
+            
+            (let ((notas ""))
+              (if (and *lily-chan-on* (not (om::cont-chord-p self)))
+                  (loop for note in inside 
+                        for ch in chans
+                        do (setf notas 
+                                 (string+ notas " " (cons-lily-note note) 
+                                          (format nil "-~D8" ch)
+                                          ))) 
+                (loop for note in inside 
+                      do (setf notas 
+                               (string+ notas " " (cons-lily-note note))))
+                ) 
+              (setf str (string+ str "<" notas ">8 ")))
+            )))
+ (setf str (string+ "\\slashedGrace{" str "}"))
+ ))
 
 
-(defmethod cons-lil-expr-extr ((self om::chord) dur switch)
+
+(defmethod cons-lil-expr-extr ((self om::chord) dur switch) 
 (if *split-mode* ;switch 
     (cons-lil-expr-extr-switch self dur switch)
   (cons-lil-expr-extr-simp  self dur)))
@@ -687,6 +731,7 @@ rep))
 
 (defmethod cons-lil-expr-extr-simp ((self om::chord) dur)
   (let* ((notes (inside self))
+         (graces (if (gnotes self) (glist (gnotes self))))
          (extra (car (mapcar #'extra-obj-list notes)))
          (text (car (get-extra-text extra)))
          (velex (if (vel-extra-p (car extra))
@@ -696,10 +741,13 @@ rep))
          (vel (car (om::lvel self)))
          (dyn (get-dyn-from-om vel))
          (chans (om::lchan self))
-         (str "")) 
-    
+         (str ""))
+    (print (list "chord" self graces (when graces (cons-lil-graces graces))))
+       
     (if (= (length inside) 1)
-        (setf str (cons-lily-note (car inside)))
+        (if graces
+            (setf str (string+ str (cons-lil-graces graces) " " (cons-lily-note (car inside))))
+          (setf str (cons-lily-note (car inside))))
       (let ((notes ""))
         (if (and *lily-chan-on* (not (om::cont-chord-p self)))
             (loop for note in inside 
@@ -712,7 +760,11 @@ rep))
                 do (setf notes 
                          (string+ notes " " (cons-lily-note note))))
           ) 
-        (setf str (string+ "<" notes ">")))
+        (if graces
+        (setf str (string+ str (cons-lil-graces graces) " " (string+ "<" notes ">")))
+        (setf str (string+ "<" notes ">"))
+        )
+        )
       )
       
     ;;;trouver un truc pour les longues notes !!!! (cf. om-lily-spec)      
