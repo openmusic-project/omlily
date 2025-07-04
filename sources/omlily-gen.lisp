@@ -445,7 +445,8 @@ remaining cent value (i.e., midi-cent 8176 would be expressed as Bb4-24)."
 (defun print-lily (voice)
   (setf *mesure-num* 0)
   (setf *voice-num* 1)
-  (loop for elt in (cons-lil-expr-extr voice '("G") nil) do (print elt)))
+  (let ((val (if *split-mode* (parse-integer *split-note*))))
+  (loop for elt in (cons-lil-expr-extr voice '("G") val) do (print elt))))
 
 ;;;;;;;;;;;;;;Utilities section
 
@@ -729,6 +730,7 @@ rep))
   (cons-lil-expr-extr-simp  self dur)))
   
 
+
 (defmethod cons-lil-expr-extr-simp ((self om::chord) dur)
   (let* ((notes (inside self))
          (graces (if (gnotes self) (glist (gnotes self))))
@@ -741,13 +743,15 @@ rep))
          (vel (car (om::lvel self)))
          (dyn (get-dyn-from-om vel))
          (chans (om::lchan self))
-         (str ""))
-    (print (list "chord" self graces (when graces (cons-lil-graces graces))))
-       
+         (str "")) 
+    
     (if (= (length inside) 1)
-        (if graces
-            (setf str (string+ str (cons-lil-graces graces) " " (cons-lily-note (car inside))))
-          (setf str (cons-lily-note (car inside))))
+        (progn 
+          (when graces
+            (setf str (string+ str (cons-lil-graces graces)))
+            (setf str (string+ str (format nil "~%"))))
+          (setf str (string+ str (cons-lily-note (car inside)))))
+      
       (let ((notes ""))
         (if (and *lily-chan-on* (not (om::cont-chord-p self)))
             (loop for note in inside 
@@ -758,12 +762,11 @@ rep))
                                     ))) 
           (loop for note in inside 
                 do (setf notes 
-                         (string+ notes " " (cons-lily-note note))))
-          ) 
-        (if graces
-        (setf str (string+ str (cons-lil-graces graces) " " (string+ "<" notes ">")))
-        (setf str (string+ "<" notes ">"))
-        )
+                         (string+ notes " " (cons-lily-note note)))))
+        (when graces
+          (setf str (string+ str (cons-lil-graces graces)))
+          (setf str (string+ str (format nil "~%"))))
+        (setf str (string+  str "<" notes ">"))
         )
       )
       
@@ -817,6 +820,7 @@ rep))
                   (setf *clef-switch* 1)
                 (setf *clef-switch* 0)))
          (notes (inside self))
+         (graces (if (gnotes self) (glist (gnotes self))))
          (extra (car (mapcar #'extra-obj-list notes)))
          (text (car (get-extra-text extra)))
          (velex (if (vel-extra-p (car extra))
@@ -829,18 +833,22 @@ rep))
          (str "")) 
 
     (if (= (length inside) 1)
-        
-        (if (= *clef-switch* *clef-switch-b*)        
-            (setf str (cons-lily-note (car inside)))
-          (let ((clef (if (= 0 *clef-switch*) 
-                          (format nil "\\clef \"G\"~%")
-                        (format nil "\\clef \"F\"~%"))))
-                       
-            (progn
-              (setf str (string+ clef))
+        (progn 
+          (when graces
+            (setf str (string+ str (cons-lil-graces graces)))
+            (setf str (string+ str (format nil "~%"))))
+          (if (= *clef-switch* *clef-switch-b*)      
               (setf str (string+ str (cons-lily-note (car inside))))
-              (setf *clef-switch-b* *clef-switch*))))
-        
+            (let ((clef (if (= 0 *clef-switch*) 
+                            (format nil "\\clef \"G\"~%")
+                          (format nil "\\clef \"F\"~%"))))
+                       
+              (progn
+                (setf str (string+ clef))
+                (setf str (string+ str (cons-lily-note (car inside))))
+                (setf *clef-switch-b* *clef-switch*))))
+          )
+
 
       (let* ((notes "")
              (clef (if (= 0 *clef-switch*) 
@@ -862,13 +870,13 @@ rep))
         
 
         (progn
-          (setf str (string+ clef))
+          (when graces
+            (setf str (string+ str (cons-lil-graces graces)))
+            (setf str (string+ str (format nil "~%"))))
+          (setf str (string+ str clef))
           (setf str (string+ str "<" notes ">"))
-          (setf *clef-switch-b* *clef-switch*)))
-      )
+          (setf *clef-switch-b* *clef-switch*))))
     
-    
-
     (let* ((durconv (get-head-and-points durtot))
            (head (first durconv))
            (points (if (< 0 (second durconv))
@@ -893,13 +901,13 @@ rep))
       )
     
     (if *lily-dyn-on*
-     (if (not (equal dyn *tempdyn*))
-     (progn
-       (setf str (string+ str (format nil " ~d" dyn)))
-       (setf *tempdyn* dyn)))
+        (if (not (equal dyn *tempdyn*))
+            (progn
+              (setf str (string+ str (format nil " ~d" dyn)))
+              (setf *tempdyn* dyn)))
       )
 
-        ;;;extras
+    ;;;extras
     (if velex 
         (setf str (string+ str  (massq velex *vel-for-lil*)))
       )
@@ -911,20 +919,22 @@ rep))
     (list str)
     ))
 
-
                       
 (defmethod cons-lil-expr-extr ((self om::rest) dur switch)
-(let* ((durtot (if (listp dur) (car dur) dur))
-       (durconv (get-head-and-points durtot))
-           (head (first durconv))
-           (points (if (< 0 (second durconv))
-                     (append-str (om::repeat-n "." (second durconv))))))
-  
-
-                     (if (not points)
-                       (list (format nil "r~d" head))
-                       (list (format nil "r~d~A" head points))
-                       )))
+  (let* ((durtot (if (listp dur) (car dur) dur))
+         (durconv (get-head-and-points durtot))
+         (head (first durconv))
+         (points (if (< 0 (second durconv))
+                     (append-str (om::repeat-n "." (second durconv)))))
+         (graces (if (gnotes self) (glist (gnotes self)))))
+    (if (not points)
+        (if graces 
+            (list (cons-lil-graces graces) (format nil "r~d" head))
+          (list (format nil "r~d" head)))
+      (if graces 
+          (list (cons-lil-graces graces) (format nil "r~d~A" head points))
+        (list (format nil "r~d~A" head points)))
+      )))
 
 
 
