@@ -266,12 +266,19 @@
 ;;;BarCheck !!! IMPORTANT !!!! SHOULD BE PRESENT ! and surtout a closing one
 ;;;c-a-d une barcheck a la fin !!!!
 ;;;when declared in .ly
+;;;TO DO: warning dialog if no closing barcheck in voice!
+;;;Because either the import fails or worse, last measure est n'imnporte quoi!
 
 (defmethod make-music ((type (eql 'BarCheck)) &rest other-args)
   (list type)
   )
+;starting from lilypond version 2.25.x BarCheck -> BarCheckEvent
+(defmethod make-music ((type (eql 'BarCheckEvent)) &rest other-args)
+  (list 'barcheck)
+  )
 
-
+(defmethod get-lil-vers ()
+  (parse-float (lilypond-version) :start 0 :end 4))
 
 ;;;TEMPO
 ;;(dotted-lily nil)
@@ -302,9 +309,9 @@
 (defmethod make-music ((type (eql 'PropertySet)) &rest other-args)
   (let* ((bar (find-value-in-lily-args other-args 'value))
          )
-    (if (equal bar "|") (list 'barcheck))
-
-))
+    (if (equal bar "|") 
+        (list 'barcheck)
+      )))
 
 ;;;;;;;;;;;;;;;;;
 ;;; (fmakunbound 'make-music) 
