@@ -179,7 +179,7 @@ sort-mono-voices-by-chan assuming that the voice has uniform channel"
     ;(setf rep (append rep (list ">>")))
 
       (setf rep (append rep (list (format nil "\\score { ~% { ~%~%"))))
-      (setf rep (append rep (list (format nil "~%\% \#(with-output-to-file \"temp.lisp\"" ))))
+      (setf rep (append rep (list (format nil "~%\% \#(with-output-to-file ~S" *templilyfilename*))))
       (setf rep (append rep (list (format nil "\% (lambda () #{ \\displayMusic {"))))
       (setf rep (append rep (list (format nil "<<"))))
       (setf rep (append rep (list (format nil "\\new ChoirStaff~%<< ~%~%"))))

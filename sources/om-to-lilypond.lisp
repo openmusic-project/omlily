@@ -3,6 +3,8 @@
 (defparameter *approx-midic* 2)
 (setf *approx-midic* 2)
 
+(defparameter *templilyfilename* "temp.lisp")
+
 ;change
 (defun run-lilypond (path &optional mode)
   (let* ((lily-path (pathname-name *LILYPOND-PATH*))
@@ -97,6 +99,7 @@ Note: Instances don't allow access to param."
   (let* ((ressource-folder (lib-resources-folder (find-library "omlily")))
          (paperfile *lily-paper-other*) 
          (pathname (or path (om-choose-new-file-dialog)))
+         (tempfile (setf *templilyfilename* (string+ (file-namestring  pathname) ".lisp")))
          (layoutfile
           (if (or (equal mode 'gen) (= *default-comp-mode* 0))
               (merge-pathnames (string+ "lily-templates/layouts/" "template1" ".ly") ressource-folder)
@@ -125,6 +128,7 @@ Note: Instances don't allow access to param."
   (let* ((ressource-folder (lib-resources-folder (find-library "omlily")))
          (paperfile *lily-paper-other*) 
          (pathname (or path (om-choose-new-file-dialog)))
+         (tempfile (setf *templilyfilename* (string+ (file-namestring  pathname) ".lisp")))
          (layoutfile
           (if (or (equal mode 'gen) (= *default-comp-mode* 0))
               (merge-pathnames (string+ "lily-templates/layouts/" "template1" ".ly") ressource-folder)
