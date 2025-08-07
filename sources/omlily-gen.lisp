@@ -1034,7 +1034,7 @@ rep))
 
 
 
-(om::defmethod! get-measure ((self voice))
+(om::defmethod! get-measure-list ((self voice))
    :icon 134
    :indoc '("objekt")
    :initvals (list t)
@@ -1045,13 +1045,13 @@ rep))
 
 
 
-(om::defmethod! get-measure ((self poly))
+(om::defmethod! get-measure-list ((self poly))
    :icon 134
    :indoc '("objekt")
    :initvals (list t)
    :doc "Give list of measures contained in <objekt>"
    (let* ((voices (inside self)))
-     (mapcar #'get-measure voices)))
+     (mapcar #'get-measure-list voices)))
 
 
 
