@@ -18,7 +18,7 @@
       '((0 . 6000) (1 . 6200) (2 . 6400) (3 . 6500) (4 . 6700)
         (5 . 6900) (6 . 7100)))
 
-
+(defparameter *non-teminated-vx* nil)
 
 ;(cassq 2 *lilnotes*)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1011,18 +1011,32 @@ meaning RT containing other RTs"
              (setf *lil-imp-pitch* nil))))
        (eval (read-lily-file pathname))))
 
+
+
+(defun ending-barcheck-p (list)
+  (let ((res (loop for i in list
+                   collect (last-elem (car i)))))
+    (setf *non-teminated-vx* (position-if #'(lambda (x) (not (equal x '(barcheck)))) res))
+    ))
+
+;same as  all-grp-measm but on;y for trees for the warning. 
+(defun all-grp-tree-meas (list)
+  (unless (ending-barcheck-p list)
+    (loop for i in list
+          collect (grp-meas i))))
+    
+
 (defun get-lily-tree (file)
   (let* ((stream (lily-chord-or-dur file t))
-         (grouped (all-grp-meas (car stream)))) ;fix
-    ;(print grouped)
-    (loop for i in grouped
-          collect (lily-tree i))))
-
+         (grouped (all-grp-tree-meas (car stream)))) ;fix
+    (when grouped
+      (loop for i in grouped
+            collect (lily-tree i)))))
 
 
 ;This error is due to a missing barcheck
 ;Error while evaluating the box LILY->OM 2 : Division-by-zero caused by / of (1 0).
-
+;Now fixed with the warning message.
 
 ;;;tempo
 
@@ -1129,7 +1143,7 @@ meaning RT containing other RTs"
 ;;;;;;
 
 
-
+#|
 (defmethod! lily->om (&optional (path nil))
             :icon 161
   ;:indoc '("path" )
@@ -1149,3 +1163,29 @@ meaning RT containing other RTs"
                   (make-instance 'poly 
                                  :voices voices)))
               ))
+|#
+
+(defmethod! lily->om (&optional (path nil))
+  :icon 161
+  ;:indoc '("path" )
+  ;:initvals '(nil nil)
+  :doc "Imports lilypond format to OM"
+  (let ((file (catch-cancel (or path (om-choose-file-dialog)))))
+    (when file
+      (let* ((notes (get-lily-chords file))
+             (tree (get-lily-tree file))
+             (tempo (car (get-lily-tempo file))));;;needs to be fixed [indexing tempo measures]
+        (if tree
+            (let
+                ((voices (loop for n in notes
+                               for tr in tree
+                               collect (make-instance 'voice
+                                                      :tree tr
+                                                      :chords n 
+                                                      :tempo tempo))))
+              (make-instance 'poly 
+                             :voices voices))
+          (prog1
+          (om-message-dialog (format nil "Missing end barcheck in voice ~A !~% Please verify your .ly score" *non-teminated-vx*))
+            (setf *non-teminated-vx* nil))
+            )))))
