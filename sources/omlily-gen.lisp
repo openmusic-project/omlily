@@ -41,7 +41,7 @@
    '((:s "is" +100) (:f "es" -100)
      (:e "iq" +25) (:qe "iseq" +75) (:se "isiq" +125) (:qse "isqq" +175)
      (:k "ik" +12) (:ek "iqk" +38) (:qk "ihk" +62) (:qek "iseqk" +88) (:sk "isik" +112) (:sek "isiqk" +138) (:qsk "isihk" +162) (:qsek "isiqqk" +188)
-     (:q "is" +50) (:qs "isih" +150) (:-q "eh" -50) (:f-q "eseh" -150)
+     (:q "ih" +50) (:qs "isih" +150) (:-q "eh" -50) (:f-q "eseh" -150)
      (:s "is" +100)))
 
 
