@@ -560,12 +560,12 @@ rep))
                 (let ((tempo (if (atom (qtempo mes)) 
                                  (qtempo mes)
                                  (cadar (qtempo mes)))))
-                  ;;(print tempo) ;;this is to check the tempo....
+                  ;(print (list "tempo" tempo mem-mes)) ;;this is to check the tempo....
                   (if (not (equal tempo mem-mes))
                   (progn 
                     ;(setf rep (append rep (list (format nil "\\tempo \\markup {\\rounded-box \\concat{\\smaller \\general-align #Y #DOWN  \\note #\"4\" #1 \" = ~d\" } }" tempo))))
                     (setf rep (append rep (list (format nil "\\tempo 4 = ~d" (round tempo))))) ;chg tempo into (round tempo) 'cause lily doesn't accept tempo floats !
-                    (setf mem-mes (round tempo))) ;chg tempo into (round tempo)
+                    (setf mem-mes tempo)) ;chg tempo into (round tempo) no!
                   ))
 
                 (setf rep (append rep (cons-lil-expr-extr mes lastmes switch)))
