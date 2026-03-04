@@ -44,7 +44,7 @@
                                "omlily-gen"
                                "omlily-special"
                                "om-to-lilypond"
-			       "lilypond-to-om"
+			       "lilypond-to-om-2.22"
 			       "lily-rebar"
                                ))
                                
