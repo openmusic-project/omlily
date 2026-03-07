@@ -915,8 +915,8 @@ meaning RT containing other RTs"
           do (if (not (chord-p i)) (setf res nil)))
     res)))
 
-(defun mergechords (list)
-  (loop for i in list 
+(defmethod mergechords ((self list))
+  (loop for i in self 
         collect (if (all-chords i) 
                     (list (reduce #'merger i))
                   i)))
