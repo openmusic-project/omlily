@@ -338,10 +338,20 @@
 (defmethod make-music ((type (eql 'MarkEvent)) &rest other-args)
   )
 
+#|
 (defmethod make-music ((type (eql 'GraceMusic)) &rest other-args)
     (if (not *lil-imp-pitch*)
         (list type)
       ))
+|#
+
+(defmethod make-music ((type (eql 'GraceMusic)) &rest other-args)
+  (let* ((durs (find-value-in-lily-args other-args 'element))
+         (notes (car durs)))
+    (when *lil-imp-pitch*
+    (loop for i in notes 
+            do (setf (lygrace i) t)))
+    notes))
 
 (defmethod make-music ((type (eql 'SlurEvent)) &rest other-args)
   )
@@ -399,6 +409,7 @@
    (restevent :initform 0 :initarg :restevent :accessor restevent)
    (tieevent :initform 0 :initarg :tieevent :accessor tieevent)
    (lydur :initform 1 :initarg :lydur :accessor lydur)
+   (lygrace :initform nil :initarg :lygrace :accessor lygrace)
    ))
 
 
@@ -568,6 +579,8 @@ meaning RT containing other RTs"
 
 
 (defun comp-lily-dur (l-dur)
+  (if (and (typep l-dur 'lily-dur) (lygrace l-dur));for graces
+      0
   (if (typep l-dur 'lily-dur)
       (let* ((fig (figure l-dur))
              (dot (if (dot l-dur) (dot l-dur) 0))
@@ -576,10 +589,8 @@ meaning RT containing other RTs"
              (tieevent (tieevent l-dur)))
        ; (print "toto")
         (setf (lydur l-dur) (* fact (/ 1 (expt 2 fig)) (dotted-lily dot)))
-
         ) 
-    l-dur))
-
+    l-dur)))
 
 
 
@@ -645,7 +656,7 @@ meaning RT containing other RTs"
          (loop for deb in (cdr self)
                do (setf res (pgcd res deb)))
          res))
-
+#|
 (defmethod reduce-S ((self number))
   (let ((fact (/ 1 (pgcd-of-self self))))
     (om* self fact)))
@@ -654,6 +665,19 @@ meaning RT containing other RTs"
 (defmethod reduce-S ((self list))
   (let ((fact (/ 1 (pgcd-of-self self))))
     (om* self fact)))
+|#
+
+
+(defmethod reduce-S ((self number))
+  (if (zerop self) self
+  (let ((fact (/ 1 (pgcd-of-self self))))
+    (om* self fact))))
+
+
+(defmethod reduce-S ((self list))
+  (if (zerop (car self)) self
+  (let ((fact (/ 1 (pgcd-of-self self))))
+    (om* self fact))))
 
 
 
@@ -926,7 +950,7 @@ meaning RT containing other RTs"
 (defun lily-notes (file)
   (let* ((clean (deep-remove-items 
                  (list 'absolutedynamicevent
-                       'gracemusic
+                       ;'gracemusic
                        nil)
                  file))
          (chord-pair (chordlistonly clean))
@@ -986,7 +1010,7 @@ meaning RT containing other RTs"
   ;(print (all-grp-meas file))
   (let* ((timesig (mapcar 'car voice))
          (lildurs (mapcar 'cdr voice))
-         (lildurs (deep-remove 'gracemusic lildurs));removes gracemusic
+         ;(lildurs (deep-remove 'gracemusic lildurs));removes gracemusic
          (ratios (loop for i in lildurs
                        collect  (let ((obj (if (= 1 (length i)) (car i) i)))
                                   (c-obj-tup (comp-obj obj)))))
@@ -997,8 +1021,8 @@ meaning RT containing other RTs"
                                   collect (list m s))))
          (puls (givepulses measures))
          (rst-ties (tie-rest-list voice)) 
-;;;prevoir si derniere note est liee ENLEVER LE SHIT !
-;;donne error index too large
+         ;;;prevoir si derniere note est liee ENLEVER LE SHIT !
+         ;;donne error index too large
          (newpuls (om* puls rst-ties))
          (tree (copy-rtree measures newpuls)))
    ; (print lildurs)
