@@ -204,6 +204,7 @@
 ;;;EventChord
 ;;; (fmakunbound 'make-music) 
 
+#|
 (defmethod make-music ((type (eql 'EventChord)) &rest other-args)
   (let* ((contents (remove nil (find-value-in-lily-args other-args 'elements)))
         ; (tie-ev (last-elem contents))
@@ -247,7 +248,24 @@
       )
     ))
 ;))
+|#
 
+;this one is efficient (takes the last tied note
+;But doesn't take into account uneven tied chords
+;TODO
+
+(defmethod make-music ((type (eql 'EventChord)) &rest other-args) 
+  (let ((contents (remove nil (find-value-in-lily-args other-args 'elements))))
+    (if *lil-imp-pitch*
+        (progn
+          (if (member 'tieevent contents)
+              (progn 
+                (setf (tieevent (car contents)) 1) 
+                (car contents))
+            (car contents)))
+      (if (not (member 'tieevent contents))
+          (list (objfromobjs (flat contents) (make-instance 'chord))))
+      )))
 
 
 
@@ -957,7 +975,7 @@ meaning RT containing other RTs"
          (voice (flat-once (mapcar 'cdr chord-pair)))
          (voice (mergechords (remove 'nil voice)))
          buf)
-   ; (print (list "lily-notes:" voice))
+    ;(print (list "lily-notes:" chord-pair))
     (loop for i in voice
           do (cond 
               ((and (= 1 (length i)) (stringp (car i))) (setf buf (car i)))
