@@ -100,11 +100,11 @@ Note: Instances don't allow access to param."
          (paperfile *lily-paper-other*) 
          (pathname (or path (om-choose-new-file-dialog)))
          (tempfile (setf *templilyfilename* (string+ (file-namestring  pathname) ".lisp")))
-         (layoutfile
-          (if (or (equal mode 'gen) (= *default-comp-mode* 0))
-              (merge-pathnames (string+ "lily-templates/layouts/" "template1" ".ly") ressource-folder)
-            (merge-pathnames (string+ "lily-templates/layouts/" "template2" ".ly") ressource-folder))
-          )
+         (layoutfile  (if (or (equal mode 'gen) (= *default-comp-mode* 0))
+                          ;(merge-pathnames (string+ "lily-templates/layouts/" "template1" ".ly") ressource-folder)
+                          *lily-layout-file*
+                        (merge-pathnames (string+ "lily-templates/layouts/" "template2" ".ly") ressource-folder))
+                        )
          (setapprox (setf *approx-midic* (get-score-param self 'approx)))
           (micro (merge-pathnames (string+ "lily-templates/layouts/" "omicron" ".ly") ressource-folder))
          (destination-directory (merge-pathnames "omicron.ly" (pathname (directory-namestring  pathname))))
@@ -129,11 +129,11 @@ Note: Instances don't allow access to param."
          (paperfile *lily-paper-other*) 
          (pathname (or path (om-choose-new-file-dialog)))
          (tempfile (setf *templilyfilename* (string+ (file-namestring  pathname) ".lisp")))
-         (layoutfile
-          (if (or (equal mode 'gen) (= *default-comp-mode* 0))
-              (merge-pathnames (string+ "lily-templates/layouts/" "template1" ".ly") ressource-folder)
-            (merge-pathnames (string+ "lily-templates/layouts/" "template2" ".ly") ressource-folder))
-          )
+         (layoutfile  (if (or (equal mode 'gen) (= *default-comp-mode* 0))
+                          ;(merge-pathnames (string+ "lily-templates/layouts/" "template1" ".ly") ressource-folder)
+                          *lily-layout-file*
+                        (merge-pathnames (string+ "lily-templates/layouts/" "template2" ".ly") ressource-folder))
+                        )
          (setapprox (setf *approx-midic* (get-score-param self 'approx)))
          (micro (merge-pathnames (string+ "lily-templates/layouts/" "omicron" ".ly") ressource-folder))
          (destination-directory (merge-pathnames "omicron.ly" (pathname (directory-namestring  pathname))))
