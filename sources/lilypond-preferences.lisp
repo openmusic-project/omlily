@@ -134,7 +134,7 @@
 (defvar *default-comp-mode* 0)
 
 (defvar *lily-paper-other* (merge-pathnames (string+ "lily-templates/paper/" "paper" ".ly") (lib-resources-folder (find-library "omlily"))))
-(defvar *lily-layout-file* (merge-pathnames (string+ "lily-templates/layouts/" "template" ".ly") (lib-resources-folder (find-library "omlily"))))
+(defvar *lily-layout-file* (merge-pathnames (string+ "lily-templates/layouts/" "template1" ".ly") (lib-resources-folder (find-library "omlily"))))
 
 (defvar *lily-dyn-on* nil)
 (setf *lily-dyn-on* t)
@@ -170,7 +170,7 @@
     :paper-orientation "portrait"
     :staff-size 18
     :paper-other (merge-pathnames (string+ "lily-templates/paper/" "paper" ".ly") (lib-resources-folder (find-library "omlily"))) 
-    :layout-file (merge-pathnames (string+ "lily-templates/layouts/" "template" ".ly") (lib-resources-folder (find-library "omlily")))
+    :layout-file (merge-pathnames (string+ "lily-templates/layouts/" "template1" ".ly") (lib-resources-folder (find-library "omlily")))
     ))
 
 
