@@ -3,6 +3,7 @@
 *.*~
 *.xfasl
 *.64xfasl
+*.64yfasl
 *.ofasl
 *.*ufasl
 #*#
